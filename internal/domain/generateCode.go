@@ -1,5 +1,13 @@
 package domain
 
-func GenerateCode(url string) (code string, err error) {
-	return "", nil
+import (
+	"encoding/hex"
+
+	"golang.org/x/crypto/blake2b"
+)
+
+func GenerateCode(url string) (string, error) {
+	hash, err := blake2b.New256(nil)
+	hash.Write([]byte(url))
+	return hex.EncodeToString(hash.Sum(nil))[:CodeLength], err
 }
