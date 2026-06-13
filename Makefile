@@ -8,3 +8,6 @@ test:
 lint:
 	go vet ./...
 	golangci-lint run
+
+run:
+	go run ./cmd/server
