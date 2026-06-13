@@ -1,0 +1,7 @@
+CREATE TABLE short_urls (
+  id UUID PRIMARY KEY,
+  created_at TIMESTAMP NOT NULL,
+  code VARCHAR(16) NOT NULL UNIQUE,
+  original_url VARCHAR(255) NOT NULL,
+  clicks INT DEFAULT 0
+)
