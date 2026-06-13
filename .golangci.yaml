@@ -1,0 +1,9 @@
+version: "2"
+issues:
+  new-from-merge-base: main
+  fix: true
+output:
+  sort-order:
+    - linter
+    - severity
+    - file
