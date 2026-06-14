@@ -10,6 +10,18 @@ import (
 	"database/sql"
 )
 
+const amount = `-- name: Amount :one
+SELECT COUNT(id)
+FROM short_urls
+`
+
+func (q *Queries) Amount(ctx context.Context) (int64, error) {
+	row := q.db.QueryRowContext(ctx, amount)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createShortUrl = `-- name: CreateShortUrl :one
 INSERT INTO short_urls (id, created_at, code, original_url, clicks)
 VALUES (
@@ -23,8 +35,8 @@ RETURNING id, created_at, code, original_url, clicks
 `
 
 type CreateShortUrlParams struct {
-	Code        string `json:"code"`
-	OriginalUrl string `json:"original_url"`
+	Code        string
+	OriginalUrl string
 }
 
 func (q *Queries) CreateShortUrl(ctx context.Context, arg CreateShortUrlParams) (ShortUrl, error) {
@@ -76,8 +88,8 @@ WHERE code = $1
 `
 
 type IncrementClicksParams struct {
-	Code   string        `json:"code"`
-	Clicks sql.NullInt32 `json:"clicks"`
+	Code   string
+	Clicks sql.NullInt32
 }
 
 func (q *Queries) IncrementClicks(ctx context.Context, arg IncrementClicksParams) error {
@@ -85,136 +97,64 @@ func (q *Queries) IncrementClicks(ctx context.Context, arg IncrementClicksParams
 	return err
 }
 
-const listAllFiltered = `-- name: ListAllFiltered :many
+const list = `-- name: List :many
+SELECT id, created_at, code, original_url, clicks
+FROM short_urls
+ORDER BY created_at ASC
+OFFSET $1
+LIMIT $2
+`
+
+type ListParams struct {
+	Offset int32
+	Limit  int32
+}
+
+func (q *Queries) List(ctx context.Context, arg ListParams) ([]ShortUrl, error) {
+	rows, err := q.db.QueryContext(ctx, list, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ShortUrl
+	for rows.Next() {
+		var i ShortUrl
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.Code,
+			&i.OriginalUrl,
+			&i.Clicks,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const search = `-- name: Search :many
 SELECT id, created_at, code, original_url, clicks
 FROM short_urls
 WHERE original_url LIKE $1
 ORDER BY created_at ASC
-`
-
-func (q *Queries) ListAllFiltered(ctx context.Context, originalUrl string) ([]ShortUrl, error) {
-	rows, err := q.db.QueryContext(ctx, listAllFiltered, originalUrl)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []ShortUrl
-	for rows.Next() {
-		var i ShortUrl
-		if err := rows.Scan(
-			&i.ID,
-			&i.CreatedAt,
-			&i.Code,
-			&i.OriginalUrl,
-			&i.Clicks,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listAllUnfiltered = `-- name: ListAllUnfiltered :many
-SELECT id, created_at, code, original_url, clicks
-FROM short_urls
-ORDER BY created_at ASC
-`
-
-func (q *Queries) ListAllUnfiltered(ctx context.Context) ([]ShortUrl, error) {
-	rows, err := q.db.QueryContext(ctx, listAllUnfiltered)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []ShortUrl
-	for rows.Next() {
-		var i ShortUrl
-		if err := rows.Scan(
-			&i.ID,
-			&i.CreatedAt,
-			&i.Code,
-			&i.OriginalUrl,
-			&i.Clicks,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listSomeFiltered = `-- name: ListSomeFiltered :many
-SELECT id, created_at, code, original_url, clicks
-FROM short_urls
-WHERE original_url LIKE $3
-ORDER BY created_at ASC
 OFFSET $1
 LIMIT $2
 `
 
-type ListSomeFilteredParams struct {
-	Offset      int32  `json:"offset"`
-	Limit       int32  `json:"limit"`
-	OriginalUrl string `json:"original_url"`
+type SearchParams struct {
+	Offset int32
+	Limit  int32
 }
 
-func (q *Queries) ListSomeFiltered(ctx context.Context, arg ListSomeFilteredParams) ([]ShortUrl, error) {
-	rows, err := q.db.QueryContext(ctx, listSomeFiltered, arg.Offset, arg.Limit, arg.OriginalUrl)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []ShortUrl
-	for rows.Next() {
-		var i ShortUrl
-		if err := rows.Scan(
-			&i.ID,
-			&i.CreatedAt,
-			&i.Code,
-			&i.OriginalUrl,
-			&i.Clicks,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listSomeUnfiltered = `-- name: ListSomeUnfiltered :many
-SELECT id, created_at, code, original_url, clicks
-FROM short_urls
-ORDER BY created_at ASC
-OFFSET $1
-LIMIT $2
-`
-
-type ListSomeUnfilteredParams struct {
-	Offset int32 `json:"offset"`
-	Limit  int32 `json:"limit"`
-}
-
-func (q *Queries) ListSomeUnfiltered(ctx context.Context, arg ListSomeUnfilteredParams) ([]ShortUrl, error) {
-	rows, err := q.db.QueryContext(ctx, listSomeUnfiltered, arg.Offset, arg.Limit)
+func (q *Queries) Search(ctx context.Context, arg SearchParams) ([]ShortUrl, error) {
+	rows, err := q.db.QueryContext(ctx, search, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}

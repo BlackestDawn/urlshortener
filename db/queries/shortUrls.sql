@@ -14,31 +14,24 @@ SELECT *
 FROM short_urls
 WHERE code = $1;
 
--- name: ListAllUnfiltered :many
+-- name: List :many
 SELECT *
 FROM short_urls
-ORDER BY created_at ASC;
+ORDER BY created_at ASC
+OFFSET $1
+LIMIT $2;
 
--- name: ListAllFiltered :many
+-- name: Search :many
 SELECT *
 FROM short_urls
 WHERE original_url LIKE $1
-ORDER BY created_at ASC;
-
--- name: ListSomeUnfiltered :many
-SELECT *
-FROM short_urls
 ORDER BY created_at ASC
 OFFSET $1
 LIMIT $2;
 
--- name: ListSomeFiltered :many
-SELECT *
-FROM short_urls
-WHERE original_url LIKE $3
-ORDER BY created_at ASC
-OFFSET $1
-LIMIT $2;
+-- name: Amount :one
+SELECT COUNT(id)
+FROM short_urls;
 
 -- name: IncrementClicks :exec
 UPDATE short_urls

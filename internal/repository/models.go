@@ -12,9 +12,9 @@ import (
 )
 
 type ShortUrl struct {
-	ID          uuid.UUID     `json:"id"`
-	CreatedAt   time.Time     `json:"created_at"`
-	Code        string        `json:"code"`
-	OriginalUrl string        `json:"original_url"`
-	Clicks      sql.NullInt32 `json:"clicks"`
+	ID          uuid.UUID
+	CreatedAt   time.Time
+	Code        string
+	OriginalUrl string
+	Clicks      sql.NullInt32
 }
