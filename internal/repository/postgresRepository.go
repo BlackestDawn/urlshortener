@@ -26,7 +26,7 @@ func NewPGRepository(cfg config.Config) (*PostgresRepository, error) {
 	return repo, nil
 }
 
-func (r *PostgresRepository) CreateShortUrl(url string) (*domain.ShortUrl, error) {
+func (r *PostgresRepository) Create(url string) (*domain.ShortUrl, error) {
 	if res, err := domain.ValidateURL(url); !res {
 		return nil, fmt.Errorf("Invalid URL: %w", err)
 	}
@@ -47,7 +47,7 @@ func (r *PostgresRepository) CreateShortUrl(url string) (*domain.ShortUrl, error
 	return entryToDomain(entry), nil
 }
 
-func (r *PostgresRepository) GetByCode(code string) (*domain.ShortUrl, error) {
+func (r *PostgresRepository) FindByCode(code string) (*domain.ShortUrl, error) {
 	entry, err := r.QBQueries.GetByCode(context.Background(), code)
 	if err != nil {
 		return nil, err
@@ -56,11 +56,11 @@ func (r *PostgresRepository) GetByCode(code string) (*domain.ShortUrl, error) {
 	return entryToDomain(entry), nil
 }
 
-func (r *PostgresRepository) Remove(code string) error {
+func (r *PostgresRepository) Delete(code string) error {
 	return r.QBQueries.DeleteByCode(context.Background(), code)
 }
 
-func (r *PostgresRepository) Get(page int, amount int, search string) ([]*domain.ShortUrl, int, error) {
+func (r *PostgresRepository) List(page int, amount int, search string) ([]*domain.ShortUrl, int, error) {
 	offset := amount * (page - 1)
 	totalAmount, err := r.QBQueries.Amount(context.Background())
 	if err != nil {
