@@ -5,7 +5,6 @@
 package repository
 
 import (
-	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -16,5 +15,5 @@ type ShortUrl struct {
 	CreatedAt   time.Time
 	Code        string
 	OriginalUrl string
-	Clicks      sql.NullInt32
+	Clicks      int32
 }
