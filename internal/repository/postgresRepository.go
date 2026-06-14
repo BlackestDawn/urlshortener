@@ -46,3 +46,12 @@ func (r *PostgresRepository) CreateShortUrl(url string) (*domain.ShortUrl, error
 
 	return entryToDomain(entry), nil
 }
+
+func (r *PostgresRepository) GetByCode(code string) (*domain.ShortUrl, error) {
+	entry, err := r.QBQueries.GetByCode(context.Background(), code)
+	if err != nil {
+		return nil, err
+	}
+
+	return entryToDomain(entry), nil
+}
