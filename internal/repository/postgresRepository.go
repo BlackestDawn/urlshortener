@@ -59,3 +59,35 @@ func (r *PostgresRepository) GetByCode(code string) (*domain.ShortUrl, error) {
 func (r *PostgresRepository) Remove(code string) error {
 	return r.QBQueries.DeleteByCode(context.Background(), code)
 }
+
+func (r *PostgresRepository) Get(page int, amount int, search string) ([]*domain.ShortUrl, int, error) {
+	offset := amount * (page - 1)
+	totalAmount, err := r.QBQueries.Amount(context.Background())
+	if err != nil {
+		return nil, 0, err
+	}
+
+	var result []ShortUrl
+	if search == "" {
+		result, err = r.QBQueries.List(context.Background(), ListParams{
+			Offset: int32(offset),
+			Limit:  int32(amount),
+		})
+	} else {
+		result, err = r.QBQueries.Search(context.Background(), SearchParams{
+			Offset:      int32(offset),
+			Limit:       int32(amount),
+			OriginalUrl: search,
+		})
+	}
+	if err != nil {
+		return nil, 0, err
+	}
+
+	var retVal []*domain.ShortUrl
+	for _, val := range result {
+		retVal = append(retVal, entryToDomain(val))
+	}
+
+	return retVal, int(totalAmount), nil
+}
