@@ -142,19 +142,20 @@ func (q *Queries) List(ctx context.Context, arg ListParams) ([]ShortUrl, error) 
 const search = `-- name: Search :many
 SELECT id, created_at, code, original_url, clicks
 FROM short_urls
-WHERE original_url LIKE $1
+WHERE original_url LIKE $3
 ORDER BY created_at ASC
 OFFSET $1
 LIMIT $2
 `
 
 type SearchParams struct {
-	Offset int32
-	Limit  int32
+	Offset      int32
+	Limit       int32
+	OriginalUrl string
 }
 
 func (q *Queries) Search(ctx context.Context, arg SearchParams) ([]ShortUrl, error) {
-	rows, err := q.db.QueryContext(ctx, search, arg.Offset, arg.Limit)
+	rows, err := q.db.QueryContext(ctx, search, arg.Offset, arg.Limit, arg.OriginalUrl)
 	if err != nil {
 		return nil, err
 	}

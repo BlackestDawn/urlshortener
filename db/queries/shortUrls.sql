@@ -24,7 +24,7 @@ LIMIT $2;
 -- name: Search :many
 SELECT *
 FROM short_urls
-WHERE original_url LIKE $1
+WHERE original_url LIKE $3
 ORDER BY created_at ASC
 OFFSET $1
 LIMIT $2;
