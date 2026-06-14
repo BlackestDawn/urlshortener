@@ -8,6 +8,6 @@ func entryToDomain(entry ShortUrl) *domain.ShortUrl {
 		CreatedAt:   entry.CreatedAt,
 		Code:        entry.Code,
 		OriginalUrl: entry.OriginalUrl,
-		Clicks:      int(entry.Clicks.Int32),
+		Clicks:      int(entry.Clicks),
 	})
 }

@@ -7,7 +7,6 @@ package repository
 
 import (
 	"context"
-	"database/sql"
 )
 
 const amount = `-- name: Amount :one
@@ -89,7 +88,7 @@ WHERE code = $1
 
 type IncrementClicksParams struct {
 	Code   string
-	Clicks sql.NullInt32
+	Clicks int32
 }
 
 func (q *Queries) IncrementClicks(ctx context.Context, arg IncrementClicksParams) error {

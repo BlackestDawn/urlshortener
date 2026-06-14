@@ -1,0 +1,2 @@
+ALTER TABLE short_urls
+ALTER COLUMN clicks SET NULL;

@@ -98,12 +98,9 @@ func (r *PostgresRepository) IncrementClicks(code string) error {
 		return err
 	}
 
-	clicks := res.Clicks
-	clicks.Int32++
-
 	err = r.QBQueries.IncrementClicks(context.Background(), IncrementClicksParams{
 		Code:   code,
-		Clicks: clicks,
+		Clicks: res.Clicks + 1,
 	})
 
 	return err
