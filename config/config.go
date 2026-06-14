@@ -12,9 +12,9 @@ type Config struct {
 }
 
 func New() Config {
-	dbUrl := os.Getenv("DB_URL")
+	dbUrl := os.Getenv("DATABASE_URL")
 	if dbUrl == "" {
-		log.Fatalln("Missing URL for database connection (DB_URL)")
+		log.Fatalln("Missing URL for database connection (DATABASE_URL)")
 	}
 
 	listenPort := os.Getenv("LISTEN_PORT")
