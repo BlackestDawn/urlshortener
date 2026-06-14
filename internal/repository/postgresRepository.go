@@ -91,3 +91,20 @@ func (r *PostgresRepository) Get(page int, amount int, search string) ([]*domain
 
 	return retVal, int(totalAmount), nil
 }
+
+func (r *PostgresRepository) IncrementClicks(code string) error {
+	res, err := r.QBQueries.GetByCode(context.Background(), code)
+	if err != nil {
+		return err
+	}
+
+	clicks := res.Clicks
+	clicks.Int32++
+
+	err = r.QBQueries.IncrementClicks(context.Background(), IncrementClicksParams{
+		Code:   code,
+		Clicks: clicks,
+	})
+
+	return err
+}
