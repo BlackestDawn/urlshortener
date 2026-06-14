@@ -55,3 +55,7 @@ func (r *PostgresRepository) GetByCode(code string) (*domain.ShortUrl, error) {
 
 	return entryToDomain(entry), nil
 }
+
+func (r *PostgresRepository) Remove(code string) error {
+	return r.QBQueries.DeleteByCode(context.Background(), code)
+}
