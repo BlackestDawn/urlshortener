@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/BlackestDawn/urlshortener/config"
@@ -28,12 +29,12 @@ func NewPGRepository(cfg config.Config) (*PostgresRepository, error) {
 
 func (r *PostgresRepository) Create(url string) (*domain.ShortUrl, error) {
 	if res, err := domain.ValidateURL(url); !res {
-		return nil, fmt.Errorf("Invalid URL: %w", err)
+		return nil, fmt.Errorf("invalid URL: %w", err)
 	}
 
 	code, err := domain.GenerateCode(url)
 	if err != nil {
-		return nil, fmt.Errorf("Error generating code: %w", err)
+		return nil, fmt.Errorf("error generating code: %w", err)
 	}
 
 	entry, err := r.QBQueries.CreateShortUrl(context.Background(), CreateShortUrlParams{
@@ -50,6 +51,9 @@ func (r *PostgresRepository) Create(url string) (*domain.ShortUrl, error) {
 func (r *PostgresRepository) FindByCode(code string) (*domain.ShortUrl, error) {
 	entry, err := r.QBQueries.GetByCode(context.Background(), code)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, domain.ErrNotFound
+		}
 		return nil, err
 	}
 
@@ -95,6 +99,9 @@ func (r *PostgresRepository) List(page int, amount int, search string) ([]*domai
 func (r *PostgresRepository) IncrementClicks(code string) error {
 	res, err := r.QBQueries.GetByCode(context.Background(), code)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return domain.ErrNotFound
+		}
 		return err
 	}
 
