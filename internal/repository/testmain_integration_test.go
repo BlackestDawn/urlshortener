@@ -18,6 +18,7 @@ import (
 )
 
 var testRepo *PostgresRepository
+var testDB *sql.DB
 
 func TestMain(m *testing.M) {
 	ctx := context.Background()
@@ -66,6 +67,7 @@ func TestMain(m *testing.M) {
 		log.Fatalf("run migrations: %v", err)
 	}
 
+	testDB = db
 	testRepo = &PostgresRepository{QBQueries: New(db)}
 
 	code := m.Run()
