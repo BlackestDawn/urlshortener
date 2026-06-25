@@ -16,6 +16,13 @@ func resetDB(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func createTestRecord(t *testing.T, url string) *domain.ShortUrl {
+	t.Helper()
+	created, err := testRepo.Create(url)
+	require.NoError(t, err)
+	return created
+}
+
 func TestRepository_Create_PersistsRecord(t *testing.T) {
 	resetDB(t)
 
@@ -28,8 +35,7 @@ func TestRepository_Create_PersistsRecord(t *testing.T) {
 func TestRepository_FindByCode_ReturnsRecord(t *testing.T) {
 	resetDB(t)
 
-	created, err := testRepo.Create("https://example.com/find")
-	require.NoError(t, err)
+	created := createTestRecord(t, "https://example.com/find")
 
 	found, err := testRepo.FindByCode(created.Code)
 	require.NoError(t, err)
@@ -46,10 +52,9 @@ func TestRepository_FindByCode_ReturnsErrNotFound(t *testing.T) {
 func TestRepository_IncrementClicks_CounterIncreases(t *testing.T) {
 	resetDB(t)
 
-	created, err := testRepo.Create("https://example.com/clicks")
-	require.NoError(t, err)
+	created := createTestRecord(t, "https://example.com/clicks")
 
-	err = testRepo.IncrementClicks(created.Code)
+	err := testRepo.IncrementClicks(created.Code)
 	require.NoError(t, err)
 
 	found, err := testRepo.FindByCode(created.Code)
@@ -73,8 +78,7 @@ func TestRepository_List_ReturnsAllRecords(t *testing.T) {
 		"https://example.com/3",
 	}
 	for _, u := range urls {
-		_, err := testRepo.Create(u)
-		require.NoError(t, err)
+		createTestRecord(t, u)
 	}
 
 	results, total, err := testRepo.List(1, 10, "")
@@ -95,12 +99,9 @@ func TestRepository_List_EmptyDB(t *testing.T) {
 func TestRepository_Delete_RemovesRecord(t *testing.T) {
 	resetDB(t)
 
-	url := "https://example.com/"
+	created := createTestRecord(t, "https://example.com/")
 
-	created, err := testRepo.Create(url)
-	require.NoError(t, err)
-
-	err = testRepo.Delete(created.Code)
+	err := testRepo.Delete(created.Code)
 	require.NoError(t, err)
 
 	_, err = testRepo.FindByCode(created.Code)
@@ -119,9 +120,8 @@ func TestRepository_Create_DuplicateCode_ReturnsError(t *testing.T) {
 
 	url := "https://example.com"
 
-	_, err := testRepo.Create(url)
-	require.NoError(t, err)
+	createTestRecord(t, url)
 
-	_, err = testRepo.Create(url)
+	_, err := testRepo.Create(url)
 	assert.Error(t, err)
 }
