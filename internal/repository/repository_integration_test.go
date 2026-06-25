@@ -91,3 +91,37 @@ func TestRepository_List_EmptyDB(t *testing.T) {
 	assert.Equal(t, 0, total)
 	assert.Empty(t, results)
 }
+
+func TestRepository_Delete_RemovesRecord(t *testing.T) {
+	resetDB(t)
+
+	url := "https://example.com/"
+
+	created, err := testRepo.Create(url)
+	require.NoError(t, err)
+
+	err = testRepo.Delete(created.Code)
+	require.NoError(t, err)
+
+	_, err = testRepo.FindByCode(created.Code)
+	assert.ErrorIs(t, err, domain.ErrNotFound)
+}
+
+func TestRepository_Delete_NonExistentCode(t *testing.T) {
+	resetDB(t)
+
+	err := testRepo.Delete("1234567890abcdef")
+	assert.NoError(t, err)
+}
+
+func TestRepository_Create_DuplicateCode_ReturnsError(t *testing.T) {
+	resetDB(t)
+
+	url := "https://example.com"
+
+	_, err := testRepo.Create(url)
+	require.NoError(t, err)
+
+	_, err = testRepo.Create(url)
+	assert.Error(t, err)
+}
