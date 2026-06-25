@@ -24,7 +24,7 @@ func (q *Queries) Amount(ctx context.Context) (int64, error) {
 const createShortUrl = `-- name: CreateShortUrl :one
 INSERT INTO short_urls (id, created_at, code, original_url, clicks)
 VALUES (
-  gen_random_id(),
+  gen_random_uuid(),
   NOW(),
   $1,
   $2,
