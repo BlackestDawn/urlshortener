@@ -5,6 +5,9 @@ test:
 	staticcheck ./...
 	go test -v ./...
 
+integrationtest:
+	go test ./internal/repository/... -tags integration -v
+
 lint:
 	go vet ./...
 	golangci-lint run
