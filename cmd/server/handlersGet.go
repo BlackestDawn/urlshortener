@@ -15,8 +15,10 @@ func (a *ApiController) GetSingle(c *gin.Context) {
 	if err != nil {
 		if err == domain.ErrNotFound {
 			respondJSONError(c, http.StatusNotFound, fmt.Sprintf("url for code '%s' not found", code), err)
+			return
 		}
 		respondJSONError(c, http.StatusBadRequest, "could not complete request", err)
+		return
 	}
 
 	respondJSON(c, http.StatusOK, api.UrlDto{Url: url})
@@ -28,8 +30,10 @@ func (a *ApiController) GetStats(c *gin.Context) {
 	if err != nil {
 		if err == domain.ErrNotFound {
 			respondJSONError(c, http.StatusNotFound, fmt.Sprintf("url for code '%s' not found", code), err)
+			return
 		}
 		respondJSONError(c, http.StatusBadRequest, "could not complete request", err)
+		return
 	}
 
 	respondJSON(c, http.StatusOK, api.EntityToStatDto(entity))

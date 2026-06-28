@@ -14,8 +14,10 @@ func (a *ApiController) Redirect(c *gin.Context) {
 	if err != nil {
 		if err == domain.ErrNotFound {
 			respondJSONError(c, http.StatusNotFound, fmt.Sprintf("url for code '%s' not found", code), err)
+			return
 		}
 		respondJSONError(c, http.StatusBadRequest, "could not complete request", err)
+		return
 	}
 
 	c.Redirect(http.StatusPermanentRedirect, url)
