@@ -25,6 +25,7 @@ func main() {
 	router := gin.Default()
 
 	router.GET("/healthz", api.GetHealth)
+	router.GET("/:code", api.Redirect)
 
 	apiRoute := router.Group("/api")
 	{
