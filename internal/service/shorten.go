@@ -1,0 +1,24 @@
+package service
+
+import "github.com/BlackestDawn/urlshortener/internal/domain"
+
+type ShortenService struct {
+	repo domain.IRepository
+}
+
+func NewShortenService(repo domain.IRepository) *ShortenService {
+	return &ShortenService{repo: repo}
+}
+
+func (s *ShortenService) Shorten(url string) (string, error) {
+	if ret, _ := domain.ValidateURL(url); !ret {
+		return "", domain.ErrInvalidUrl
+	}
+
+	entry, err := s.repo.Create(url)
+	if err != nil {
+		return "", err
+	}
+
+	return entry.Code, nil
+}
