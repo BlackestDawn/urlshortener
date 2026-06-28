@@ -38,3 +38,16 @@ func (s *ShortenService) Resolve(code string) (string, error) {
 
 	return entry.OriginalUrl, nil
 }
+
+func (s *ShortenService) GetStats(code string) (*domain.ShortUrl, error) {
+	entry, err := s.repo.FindByCode(code)
+	if err != nil {
+		return nil, err
+	}
+
+	return entry, nil
+}
+
+func (s *ShortenService) Delete(code string) error {
+	return s.repo.Delete(code)
+}
