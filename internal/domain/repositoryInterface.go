@@ -1,9 +1,9 @@
 package domain
 
 type IRepository interface {
-	Create(entry ShortUrl) error
-	FindByCode(code string) ShortUrl
-	IncrementClicks(code string) (int, error)
-	List(skip int, take int, searchParam string) (*[]ShortUrl, error)
+	Create(url string) (*ShortUrl, error)
+	FindByCode(code string) (*ShortUrl, error)
+	IncrementClicks(code string) error
+	List(page int, amount int, search string) ([]*ShortUrl, int, error)
 	Delete(code string) error
 }
