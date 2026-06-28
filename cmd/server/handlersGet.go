@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/BlackestDawn/urlshortener/api"
 	"github.com/BlackestDawn/urlshortener/internal/domain"
 	"github.com/gin-gonic/gin"
 )
@@ -18,11 +19,7 @@ func (a *ApiController) GetSingle(c *gin.Context) {
 		respondJSONError(c, http.StatusBadRequest, "could not complete request", err)
 	}
 
-	type response struct {
-		Url string
-	}
-
-	respondJSON(c, http.StatusOK, response{Url: url})
+	respondJSON(c, http.StatusOK, api.UrlDto{Url: url})
 }
 
 func (a *ApiController) GetStats(c *gin.Context) {
@@ -35,5 +32,5 @@ func (a *ApiController) GetStats(c *gin.Context) {
 		respondJSONError(c, http.StatusBadRequest, "could not complete request", err)
 	}
 
-	respondJSON(c, http.StatusOK, entity)
+	respondJSON(c, http.StatusOK, api.EntityToStatDto(entity))
 }
