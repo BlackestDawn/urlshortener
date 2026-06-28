@@ -37,7 +37,7 @@ func NewConfig() *Config {
 
 	return &Config{
 		DBUrl: dbUrl,
-		Port:  listenPort,
+		Port:  ":" + listenPort,
 		Env:   appEnv,
 	}
 }
