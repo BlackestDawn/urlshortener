@@ -1,6 +1,7 @@
 package service
 
 import (
+	"database/sql"
 	"testing"
 
 	"github.com/BlackestDawn/urlshortener/internal/domain"
@@ -55,4 +56,47 @@ func TestShorten_RepoError_PropagatesError(t *testing.T) {
 
 	_, err := svc.Shorten(validUrl)
 	assert.ErrorIs(t, domain.ErrNotFound, err)
+}
+
+func TestResolve_KnownCode_ReturnsURL(t *testing.T) {
+	repo := domain.NewMockIRepository(t)
+	repo.EXPECT().
+		FindByCode(validCode).
+		Return(&domain.ShortUrl{OriginalUrl: validUrl}, nil)
+	repo.EXPECT().
+		IncrementClicks(validCode).
+		Return(nil)
+
+	svc := NewShortenService(repo)
+
+	url, err := svc.Resolve(validCode)
+	assert.NoError(t, err)
+	assert.Equal(t, validUrl, url)
+}
+
+func TestResolve_UnknownCode_ReturnsErrNotFound(t *testing.T) {
+	repo := domain.NewMockIRepository(t)
+	repo.EXPECT().
+		FindByCode("invalid_code").
+		Return(nil, sql.ErrNoRows)
+
+	svc := NewShortenService(repo)
+
+	_, err := svc.Resolve("invalid_code")
+	assert.ErrorIs(t, domain.ErrNotFound, err)
+}
+func TestResolve_IncrementsClicks(t *testing.T) {
+	repo := domain.NewMockIRepository(t)
+	repo.EXPECT().
+		FindByCode(validCode).
+		Return(&domain.ShortUrl{OriginalUrl: validUrl}, nil)
+	repo.EXPECT().
+		IncrementClicks(validCode).
+		Return(nil).
+		Once()
+
+	svc := NewShortenService(repo)
+
+	_, err := svc.Resolve(validCode)
+	assert.NoError(t, err)
 }

@@ -1,6 +1,8 @@
 package service
 
-import "github.com/BlackestDawn/urlshortener/internal/domain"
+import (
+	"github.com/BlackestDawn/urlshortener/internal/domain"
+)
 
 type ShortenService struct {
 	repo domain.IRepository
@@ -21,4 +23,18 @@ func (s *ShortenService) Shorten(url string) (string, error) {
 	}
 
 	return entry.Code, nil
+}
+
+func (s *ShortenService) Resolve(code string) (string, error) {
+	entry, err := s.repo.FindByCode(code)
+	if err != nil {
+		return "", err
+	}
+
+	err = s.repo.IncrementClicks(code)
+	if err != nil {
+		return "", err
+	}
+
+	return entry.OriginalUrl, nil
 }
