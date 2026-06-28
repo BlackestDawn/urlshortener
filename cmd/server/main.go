@@ -26,5 +26,17 @@ func main() {
 
 	router.GET("/healthz", api.GetHealth)
 
+	apiRoute := router.Group("/api")
+	{
+		v1Route := apiRoute.Group("/v1")
+		{
+			linksRoute := v1Route.Group("/links")
+			{
+				linksRoute.GET("/:code/stats", api.GetStats)
+				linksRoute.GET("/:code", api.GetSingle)
+			}
+		}
+	}
+
 	router.Run(cfg.Port)
 }
