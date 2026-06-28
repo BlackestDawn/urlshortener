@@ -14,7 +14,7 @@ type PostgresRepository struct {
 	QBQueries *Queries
 }
 
-func NewPGRepository(cfg config.Config) (*PostgresRepository, error) {
+func NewPGRepository(cfg *config.Config) (*PostgresRepository, error) {
 	repo := new(PostgresRepository)
 
 	db, err := sql.Open("postgres", cfg.DBUrl)
@@ -23,6 +23,7 @@ func NewPGRepository(cfg config.Config) (*PostgresRepository, error) {
 	}
 
 	repo.QBQueries = New(db)
+	cfg.AddCloser(db.Close)
 
 	return repo, nil
 }
