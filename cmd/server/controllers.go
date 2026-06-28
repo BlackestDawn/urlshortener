@@ -18,5 +18,8 @@ func NewApiController(srv service.IShorten) *ApiController {
 }
 
 func (a *ApiController) GetHealth(c *gin.Context) {
-	c.String(http.StatusOK, "you hit endpoint: get health")
+	type response struct {
+		Health string
+	}
+	respondJSON(c, http.StatusOK, response{Health: "OK"})
 }
