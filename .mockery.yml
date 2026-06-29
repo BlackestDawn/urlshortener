@@ -29,3 +29,7 @@ packages:
     config:
       all: true
       filename: mocks.go
+  github.com/BlackestDawn/urlshortener/internal/service:
+    config:
+      all: true
+      filename: mocks.go
