@@ -12,6 +12,7 @@ func (a *ApiController) GetSingle(c *gin.Context) {
 	url, err := a.srv.Resolve(code)
 	if err != nil {
 		c.Error(err)
+		return
 	}
 
 	c.JSON(http.StatusOK, api.UrlDto{Url: url})
