@@ -12,6 +12,7 @@ type Config struct {
 	DBUrl   string
 	Port    string
 	Env     string
+	Domain  string
 	closers []func() error
 }
 
@@ -35,10 +36,16 @@ func NewConfig() *Config {
 		listenPort = defaultListenPort
 	}
 
+	domain := os.Getenv("SHORTEN_DOMAIN")
+	if domain == "" {
+		domain = defaultDomain
+	}
+
 	return &Config{
-		DBUrl: dbUrl,
-		Port:  ":" + listenPort,
-		Env:   appEnv,
+		DBUrl:  dbUrl,
+		Port:   ":" + listenPort,
+		Env:    appEnv,
+		Domain: domain,
 	}
 }
 
