@@ -9,7 +9,7 @@ import (
 
 func (a *ApiController) Create(c *gin.Context) {
 	var data api.UrlDto
-	err := c.ShouldBindJSON(data)
+	err := c.ShouldBindJSON(&data)
 	if err != nil {
 		c.Error(err)
 		return
