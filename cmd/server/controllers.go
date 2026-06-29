@@ -8,12 +8,14 @@ import (
 )
 
 type ApiController struct {
-	srv service.IShorten
+	srv    service.IShorten
+	domain string
 }
 
-func NewApiController(srv service.IShorten) *ApiController {
+func NewApiController(srv service.IShorten, domain string) *ApiController {
 	return &ApiController{
-		srv: srv,
+		srv:    srv,
+		domain: domain,
 	}
 }
 

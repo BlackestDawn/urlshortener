@@ -20,7 +20,7 @@ func main() {
 
 	srv := service.NewShortenService(repo)
 
-	api := NewApiController(srv)
+	api := NewApiController(srv, cfg.Domain)
 
 	router := gin.Default()
 
@@ -35,6 +35,7 @@ func main() {
 			{
 				linksRoute.GET("/:code/stats", api.GetStats)
 				linksRoute.GET("/:code", api.GetSingle)
+				linksRoute.POST("", api.Create)
 			}
 		}
 	}
