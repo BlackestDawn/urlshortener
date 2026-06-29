@@ -8,21 +8,23 @@ import (
 
 	"github.com/BlackestDawn/urlshortener/config"
 	"github.com/BlackestDawn/urlshortener/internal/domain"
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 type PostgresRepository struct {
 	QBQueries *Queries
 }
 
-func NewPGRepository(cfg config.Config) (*PostgresRepository, error) {
+func NewPGRepository(cfg *config.Config) (*PostgresRepository, error) {
 	repo := new(PostgresRepository)
 
-	db, err := sql.Open("postgres", cfg.DBUrl)
+	db, err := sql.Open("pgx", cfg.DBUrl)
 	if err != nil {
 		return nil, err
 	}
 
 	repo.QBQueries = New(db)
+	cfg.AddCloser(db.Close)
 
 	return repo, nil
 }
