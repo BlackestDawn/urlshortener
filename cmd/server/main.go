@@ -30,6 +30,8 @@ func main() {
 
 	router := gin.Default()
 
+	router.Use(ErrorHandler())
+
 	router.GET("/healthz", api.GetHealth)
 	router.GET("/:code", api.Redirect)
 

@@ -10,8 +10,9 @@ func (a *ApiController) Remove(c *gin.Context) {
 	code := c.Param("code")
 	err := a.srv.Delete(code)
 	if err != nil {
-		respondJSONError(c, http.StatusInternalServerError, "something went wrong removing entry", err)
+		c.Error(err)
+		return
 	}
 
-	respondJSON(c, http.StatusNoContent, nil)
+	c.JSON(http.StatusNoContent, nil)
 }
