@@ -20,13 +20,18 @@ func ErrorHandler() gin.HandlerFunc {
 				Error string
 			}
 
+			if errors.Is(err, domain.ErrInvalidJson) {
+				c.JSON(http.StatusUnprocessableEntity, errVal{Error: err.Error()})
+				return
+			}
+
 			if errors.Is(err, domain.ErrInvalidUrl) {
-				c.JSON(http.StatusBadRequest, errVal{Error: "Invalid URL supplied"})
+				c.JSON(http.StatusBadRequest, errVal{Error: err.Error()})
 				return
 			}
 
 			if errors.Is(err, domain.ErrNotFound) {
-				c.JSON(http.StatusNotFound, errVal{Error: "Code not found"})
+				c.JSON(http.StatusNotFound, errVal{Error: err.Error()})
 				return
 			}
 

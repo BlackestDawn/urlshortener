@@ -23,5 +23,5 @@ func (a *ApiController) GetHealth(c *gin.Context) {
 	type response struct {
 		Health string
 	}
-	respondJSON(c, http.StatusOK, response{Health: "OK"})
+	c.JSON(http.StatusOK, response{Health: "OK"})
 }
