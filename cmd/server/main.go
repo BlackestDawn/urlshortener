@@ -36,6 +36,7 @@ func main() {
 				linksRoute.GET("/:code/stats", api.GetStats)
 				linksRoute.GET("/:code", api.GetSingle)
 				linksRoute.POST("", api.Create)
+				linksRoute.DELETE("/:code", api.Remove)
 			}
 		}
 	}
