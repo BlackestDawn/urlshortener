@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/BlackestDawn/urlshortener/api"
+	"github.com/BlackestDawn/urlshortener/internal/domain"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,7 +12,7 @@ func (a *ApiController) Create(c *gin.Context) {
 	var data api.UrlDto
 	err := c.ShouldBindJSON(&data)
 	if err != nil {
-		c.Error(err)
+		c.Error(domain.ErrInvalidJson)
 		return
 	}
 
