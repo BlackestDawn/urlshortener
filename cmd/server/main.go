@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -12,7 +13,14 @@ import (
 	"github.com/BlackestDawn/urlshortener/config"
 	"github.com/BlackestDawn/urlshortener/internal/repository"
 	"github.com/BlackestDawn/urlshortener/internal/service"
+	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
+	ratelimiter "github.com/rleungx/gin-ratelimiter"
+)
+
+const (
+	maxRequestBodyBytes = 4 << 10 // 4 KiB, generous for a single URL payload
+	requestTimeout      = 10 * time.Second
 )
 
 func main() {
@@ -26,9 +34,19 @@ func main() {
 	srv := service.NewShortenService(repo)
 
 	api := NewApiController(srv, cfg.Domain)
+	limiter := ratelimiter.New()
+	limiter.UpdateRateLimit("/healthz", 3, 3)
+	limiter.UpdateConcurrencyLimit("/healthz", 3)
 
-	router := gin.Default()
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
+	router := gin.New()
+
+	router.Use(requestid.New())
+	router.Use(SlogLogger(logger))
+	router.Use(gin.Recovery())
+	router.Use(MaxBodySize(maxRequestBodyBytes))
+	router.Use(limiter.Middleware(ratelimiter.WithRateLimit(30, 60), ratelimiter.WithConcurrencyLimit(5)))
 	router.Use(ErrorHandler())
 
 	router.GET("/healthz", api.GetHealth)
@@ -50,7 +68,7 @@ func main() {
 
 	server := http.Server{
 		Addr:    cfg.Port,
-		Handler: router,
+		Handler: newTimeoutHandler(router, requestTimeout),
 	}
 
 	serverErr := make(chan error, 1)

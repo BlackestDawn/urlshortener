@@ -1,9 +1,11 @@
 package domain
 
+import "context"
+
 type IRepository interface {
-	Create(url string) (*ShortUrl, error)
-	FindByCode(code string) (*ShortUrl, error)
-	IncrementClicks(code string) error
-	List(page int, amount int, search string) ([]*ShortUrl, int, error)
-	Delete(code string) error
+	Create(ctx context.Context, url string) (*ShortUrl, error)
+	FindByCode(ctx context.Context, code string) (*ShortUrl, error)
+	IncrementClicks(ctx context.Context, code string) error
+	List(ctx context.Context, page int, amount int, search string) ([]*ShortUrl, int, error)
+	Delete(ctx context.Context, code string) error
 }

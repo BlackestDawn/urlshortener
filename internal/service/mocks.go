@@ -5,6 +5,8 @@
 package service
 
 import (
+	"context"
+
 	"github.com/BlackestDawn/urlshortener/internal/domain"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -37,16 +39,16 @@ func (_m *MockIShorten) EXPECT() *MockIShorten_Expecter {
 }
 
 // Delete provides a mock function for the type MockIShorten
-func (_mock *MockIShorten) Delete(code string) error {
-	ret := _mock.Called(code)
+func (_mock *MockIShorten) Delete(ctx context.Context, code string) error {
+	ret := _mock.Called(ctx, code)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Delete")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(string) error); ok {
-		r0 = returnFunc(code)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = returnFunc(ctx, code)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -59,19 +61,25 @@ type MockIShorten_Delete_Call struct {
 }
 
 // Delete is a helper method to define mock.On call
+//   - ctx context.Context
 //   - code string
-func (_e *MockIShorten_Expecter) Delete(code any) *MockIShorten_Delete_Call {
-	return &MockIShorten_Delete_Call{Call: _e.mock.On("Delete", code)}
+func (_e *MockIShorten_Expecter) Delete(ctx any, code any) *MockIShorten_Delete_Call {
+	return &MockIShorten_Delete_Call{Call: _e.mock.On("Delete", ctx, code)}
 }
 
-func (_c *MockIShorten_Delete_Call) Run(run func(code string)) *MockIShorten_Delete_Call {
+func (_c *MockIShorten_Delete_Call) Run(run func(ctx context.Context, code string)) *MockIShorten_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 string
+		var arg0 context.Context
 		if args[0] != nil {
-			arg0 = args[0].(string)
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
 		}
 		run(
 			arg0,
+			arg1,
 		)
 	})
 	return _c
@@ -82,14 +90,14 @@ func (_c *MockIShorten_Delete_Call) Return(err error) *MockIShorten_Delete_Call 
 	return _c
 }
 
-func (_c *MockIShorten_Delete_Call) RunAndReturn(run func(code string) error) *MockIShorten_Delete_Call {
+func (_c *MockIShorten_Delete_Call) RunAndReturn(run func(ctx context.Context, code string) error) *MockIShorten_Delete_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetStats provides a mock function for the type MockIShorten
-func (_mock *MockIShorten) GetStats(code string) (*domain.ShortUrl, error) {
-	ret := _mock.Called(code)
+func (_mock *MockIShorten) GetStats(ctx context.Context, code string) (*domain.ShortUrl, error) {
+	ret := _mock.Called(ctx, code)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetStats")
@@ -97,18 +105,18 @@ func (_mock *MockIShorten) GetStats(code string) (*domain.ShortUrl, error) {
 
 	var r0 *domain.ShortUrl
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(string) (*domain.ShortUrl, error)); ok {
-		return returnFunc(code)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*domain.ShortUrl, error)); ok {
+		return returnFunc(ctx, code)
 	}
-	if returnFunc, ok := ret.Get(0).(func(string) *domain.ShortUrl); ok {
-		r0 = returnFunc(code)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *domain.ShortUrl); ok {
+		r0 = returnFunc(ctx, code)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*domain.ShortUrl)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(string) error); ok {
-		r1 = returnFunc(code)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = returnFunc(ctx, code)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -121,19 +129,25 @@ type MockIShorten_GetStats_Call struct {
 }
 
 // GetStats is a helper method to define mock.On call
+//   - ctx context.Context
 //   - code string
-func (_e *MockIShorten_Expecter) GetStats(code any) *MockIShorten_GetStats_Call {
-	return &MockIShorten_GetStats_Call{Call: _e.mock.On("GetStats", code)}
+func (_e *MockIShorten_Expecter) GetStats(ctx any, code any) *MockIShorten_GetStats_Call {
+	return &MockIShorten_GetStats_Call{Call: _e.mock.On("GetStats", ctx, code)}
 }
 
-func (_c *MockIShorten_GetStats_Call) Run(run func(code string)) *MockIShorten_GetStats_Call {
+func (_c *MockIShorten_GetStats_Call) Run(run func(ctx context.Context, code string)) *MockIShorten_GetStats_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 string
+		var arg0 context.Context
 		if args[0] != nil {
-			arg0 = args[0].(string)
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
 		}
 		run(
 			arg0,
+			arg1,
 		)
 	})
 	return _c
@@ -144,14 +158,14 @@ func (_c *MockIShorten_GetStats_Call) Return(shortUrl *domain.ShortUrl, err erro
 	return _c
 }
 
-func (_c *MockIShorten_GetStats_Call) RunAndReturn(run func(code string) (*domain.ShortUrl, error)) *MockIShorten_GetStats_Call {
+func (_c *MockIShorten_GetStats_Call) RunAndReturn(run func(ctx context.Context, code string) (*domain.ShortUrl, error)) *MockIShorten_GetStats_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Resolve provides a mock function for the type MockIShorten
-func (_mock *MockIShorten) Resolve(code string) (string, error) {
-	ret := _mock.Called(code)
+func (_mock *MockIShorten) Resolve(ctx context.Context, code string) (string, error) {
+	ret := _mock.Called(ctx, code)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Resolve")
@@ -159,16 +173,16 @@ func (_mock *MockIShorten) Resolve(code string) (string, error) {
 
 	var r0 string
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(string) (string, error)); ok {
-		return returnFunc(code)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (string, error)); ok {
+		return returnFunc(ctx, code)
 	}
-	if returnFunc, ok := ret.Get(0).(func(string) string); ok {
-		r0 = returnFunc(code)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) string); ok {
+		r0 = returnFunc(ctx, code)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
-	if returnFunc, ok := ret.Get(1).(func(string) error); ok {
-		r1 = returnFunc(code)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = returnFunc(ctx, code)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -181,19 +195,25 @@ type MockIShorten_Resolve_Call struct {
 }
 
 // Resolve is a helper method to define mock.On call
+//   - ctx context.Context
 //   - code string
-func (_e *MockIShorten_Expecter) Resolve(code any) *MockIShorten_Resolve_Call {
-	return &MockIShorten_Resolve_Call{Call: _e.mock.On("Resolve", code)}
+func (_e *MockIShorten_Expecter) Resolve(ctx any, code any) *MockIShorten_Resolve_Call {
+	return &MockIShorten_Resolve_Call{Call: _e.mock.On("Resolve", ctx, code)}
 }
 
-func (_c *MockIShorten_Resolve_Call) Run(run func(code string)) *MockIShorten_Resolve_Call {
+func (_c *MockIShorten_Resolve_Call) Run(run func(ctx context.Context, code string)) *MockIShorten_Resolve_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 string
+		var arg0 context.Context
 		if args[0] != nil {
-			arg0 = args[0].(string)
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
 		}
 		run(
 			arg0,
+			arg1,
 		)
 	})
 	return _c
@@ -204,14 +224,14 @@ func (_c *MockIShorten_Resolve_Call) Return(s string, err error) *MockIShorten_R
 	return _c
 }
 
-func (_c *MockIShorten_Resolve_Call) RunAndReturn(run func(code string) (string, error)) *MockIShorten_Resolve_Call {
+func (_c *MockIShorten_Resolve_Call) RunAndReturn(run func(ctx context.Context, code string) (string, error)) *MockIShorten_Resolve_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Shorten provides a mock function for the type MockIShorten
-func (_mock *MockIShorten) Shorten(url string) (string, error) {
-	ret := _mock.Called(url)
+func (_mock *MockIShorten) Shorten(ctx context.Context, url string) (string, error) {
+	ret := _mock.Called(ctx, url)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Shorten")
@@ -219,16 +239,16 @@ func (_mock *MockIShorten) Shorten(url string) (string, error) {
 
 	var r0 string
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(string) (string, error)); ok {
-		return returnFunc(url)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (string, error)); ok {
+		return returnFunc(ctx, url)
 	}
-	if returnFunc, ok := ret.Get(0).(func(string) string); ok {
-		r0 = returnFunc(url)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) string); ok {
+		r0 = returnFunc(ctx, url)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
-	if returnFunc, ok := ret.Get(1).(func(string) error); ok {
-		r1 = returnFunc(url)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = returnFunc(ctx, url)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -241,19 +261,25 @@ type MockIShorten_Shorten_Call struct {
 }
 
 // Shorten is a helper method to define mock.On call
+//   - ctx context.Context
 //   - url string
-func (_e *MockIShorten_Expecter) Shorten(url any) *MockIShorten_Shorten_Call {
-	return &MockIShorten_Shorten_Call{Call: _e.mock.On("Shorten", url)}
+func (_e *MockIShorten_Expecter) Shorten(ctx any, url any) *MockIShorten_Shorten_Call {
+	return &MockIShorten_Shorten_Call{Call: _e.mock.On("Shorten", ctx, url)}
 }
 
-func (_c *MockIShorten_Shorten_Call) Run(run func(url string)) *MockIShorten_Shorten_Call {
+func (_c *MockIShorten_Shorten_Call) Run(run func(ctx context.Context, url string)) *MockIShorten_Shorten_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 string
+		var arg0 context.Context
 		if args[0] != nil {
-			arg0 = args[0].(string)
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
 		}
 		run(
 			arg0,
+			arg1,
 		)
 	})
 	return _c
@@ -264,7 +290,7 @@ func (_c *MockIShorten_Shorten_Call) Return(s string, err error) *MockIShorten_S
 	return _c
 }
 
-func (_c *MockIShorten_Shorten_Call) RunAndReturn(run func(url string) (string, error)) *MockIShorten_Shorten_Call {
+func (_c *MockIShorten_Shorten_Call) RunAndReturn(run func(ctx context.Context, url string) (string, error)) *MockIShorten_Shorten_Call {
 	_c.Call.Return(run)
 	return _c
 }

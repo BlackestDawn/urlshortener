@@ -25,6 +25,11 @@ func ErrorHandler() gin.HandlerFunc {
 				return
 			}
 
+			if errors.Is(err, domain.ErrRequestTooLarge) {
+				c.JSON(http.StatusRequestEntityTooLarge, errVal{Error: err.Error()})
+				return
+			}
+
 			if errors.Is(err, domain.ErrInvalidUrl) {
 				c.JSON(http.StatusBadRequest, errVal{Error: err.Error()})
 				return
