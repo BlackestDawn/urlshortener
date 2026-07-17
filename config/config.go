@@ -19,7 +19,7 @@ type Config struct {
 func NewConfig() *Config {
 	godotenv.Load(findEnvFile(""))
 
-	appEnv := os.Getenv("URLSHOTRENER_ENV")
+	appEnv := os.Getenv("URLSHORTENER_ENV")
 	if appEnv == "" {
 		appEnv = defaultAppEnv
 	}
