@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -37,10 +38,12 @@ func main() {
 	limiter.UpdateRateLimit("/healthz", 3, 3)
 	limiter.UpdateConcurrencyLimit("/healthz", 3)
 
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+
 	router := gin.New()
 
 	router.Use(requestid.New())
-	router.Use(gin.Logger())
+	router.Use(SlogLogger(logger))
 	router.Use(gin.Recovery())
 	router.Use(MaxBodySize(maxRequestBodyBytes))
 	router.Use(limiter.Middleware(ratelimiter.WithRateLimit(30, 60), ratelimiter.WithConcurrencyLimit(5)))
