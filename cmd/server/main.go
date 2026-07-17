@@ -14,6 +14,7 @@ import (
 	"github.com/BlackestDawn/urlshortener/internal/service"
 	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
+	ratelimiter "github.com/rleungx/gin-ratelimiter"
 )
 
 func main() {
@@ -27,10 +28,14 @@ func main() {
 	srv := service.NewShortenService(repo)
 
 	api := NewApiController(srv, cfg.Domain)
+	limiter := ratelimiter.New()
+	limiter.UpdateRateLimit("/healthz", 3, 3)
+	limiter.UpdateConcurrencyLimit("/healthz", 1)
 
 	router := gin.Default()
 
 	router.Use(requestid.New())
+	router.Use(limiter.Middleware(ratelimiter.WithRateLimit(30, 60), ratelimiter.WithConcurrencyLimit(5)))
 	router.Use(ErrorHandler())
 
 	router.GET("/healthz", api.GetHealth)
