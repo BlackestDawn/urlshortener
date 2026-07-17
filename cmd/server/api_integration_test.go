@@ -13,6 +13,7 @@ import (
 	"github.com/BlackestDawn/urlshortener/internal/service"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
@@ -79,7 +80,7 @@ func TestHealthz_ReturnsOK(t *testing.T) {
 func TestCreate_ValidUrl_ReturnsCreatedWithShortenedUrl(t *testing.T) {
 	router, srv := newTestRouter(t)
 	srv.EXPECT().
-		Shorten("https://example.com").
+		Shorten(mock.Anything, "https://example.com").
 		Return("abc123", nil)
 
 	rec := doRequest(t, router, http.MethodPost, "/api/v1/links", api.UrlDto{Url: "https://example.com"})
@@ -94,7 +95,7 @@ func TestCreate_ValidUrl_ReturnsCreatedWithShortenedUrl(t *testing.T) {
 func TestCreate_InvalidUrl_ReturnsBadRequest(t *testing.T) {
 	router, srv := newTestRouter(t)
 	srv.EXPECT().
-		Shorten("not-a-url").
+		Shorten(mock.Anything, "not-a-url").
 		Return("", domain.ErrInvalidUrl)
 
 	rec := doRequest(t, router, http.MethodPost, "/api/v1/links", api.UrlDto{Url: "not-a-url"})
@@ -116,7 +117,7 @@ func TestCreate_MalformedJson_ReturnsUnprocessableEntity(t *testing.T) {
 func TestGetSingle_KnownCode_ReturnsUrl(t *testing.T) {
 	router, srv := newTestRouter(t)
 	srv.EXPECT().
-		Resolve("abc123").
+		Resolve(mock.Anything, "abc123").
 		Return("https://example.com", nil)
 
 	rec := doRequest(t, router, http.MethodGet, "/api/v1/links/abc123", nil)
@@ -131,7 +132,7 @@ func TestGetSingle_KnownCode_ReturnsUrl(t *testing.T) {
 func TestGetSingle_UnknownCode_ReturnsNotFound(t *testing.T) {
 	router, srv := newTestRouter(t)
 	srv.EXPECT().
-		Resolve("missing").
+		Resolve(mock.Anything, "missing").
 		Return("", domain.ErrNotFound)
 
 	rec := doRequest(t, router, http.MethodGet, "/api/v1/links/missing", nil)
@@ -143,7 +144,7 @@ func TestGetStats_KnownCode_ReturnsStats(t *testing.T) {
 	router, srv := newTestRouter(t)
 	created := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
 	srv.EXPECT().
-		GetStats("abc123").
+		GetStats(mock.Anything, "abc123").
 		Return(&domain.ShortUrl{
 			Code:        "abc123",
 			OriginalUrl: "https://example.com",
@@ -166,7 +167,7 @@ func TestGetStats_KnownCode_ReturnsStats(t *testing.T) {
 func TestGetStats_UnknownCode_ReturnsNotFound(t *testing.T) {
 	router, srv := newTestRouter(t)
 	srv.EXPECT().
-		GetStats("missing").
+		GetStats(mock.Anything, "missing").
 		Return(nil, domain.ErrNotFound)
 
 	rec := doRequest(t, router, http.MethodGet, "/api/v1/links/missing/stats", nil)
@@ -177,7 +178,7 @@ func TestGetStats_UnknownCode_ReturnsNotFound(t *testing.T) {
 func TestRemove_KnownCode_ReturnsNoContent(t *testing.T) {
 	router, srv := newTestRouter(t)
 	srv.EXPECT().
-		Delete("abc123").
+		Delete(mock.Anything, "abc123").
 		Return(nil)
 
 	rec := doRequest(t, router, http.MethodDelete, "/api/v1/links/abc123", nil)
@@ -188,7 +189,7 @@ func TestRemove_KnownCode_ReturnsNoContent(t *testing.T) {
 func TestRemove_UnknownCode_ReturnsNotFound(t *testing.T) {
 	router, srv := newTestRouter(t)
 	srv.EXPECT().
-		Delete("missing").
+		Delete(mock.Anything, "missing").
 		Return(domain.ErrNotFound)
 
 	rec := doRequest(t, router, http.MethodDelete, "/api/v1/links/missing", nil)
@@ -199,7 +200,7 @@ func TestRemove_UnknownCode_ReturnsNotFound(t *testing.T) {
 func TestRedirect_KnownCode_ReturnsPermanentRedirect(t *testing.T) {
 	router, srv := newTestRouter(t)
 	srv.EXPECT().
-		Resolve("abc123").
+		Resolve(mock.Anything, "abc123").
 		Return("https://example.com", nil)
 
 	rec := doRequest(t, router, http.MethodGet, "/abc123", nil)
@@ -211,7 +212,7 @@ func TestRedirect_KnownCode_ReturnsPermanentRedirect(t *testing.T) {
 func TestRedirect_UnknownCode_ReturnsNotFound(t *testing.T) {
 	router, srv := newTestRouter(t)
 	srv.EXPECT().
-		Resolve("missing").
+		Resolve(mock.Anything, "missing").
 		Return("", domain.ErrNotFound)
 
 	rec := doRequest(t, router, http.MethodGet, "/missing", nil)

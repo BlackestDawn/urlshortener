@@ -22,7 +22,7 @@ func (a *ApiController) Create(c *gin.Context) {
 		return
 	}
 
-	code, err := a.srv.Shorten(data.Url)
+	code, err := a.srv.Shorten(c.Request.Context(), data.Url)
 	if err != nil {
 		c.Error(err)
 		return

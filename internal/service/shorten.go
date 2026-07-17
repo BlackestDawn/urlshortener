@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"log"
 
 	"github.com/BlackestDawn/urlshortener/internal/domain"
@@ -14,12 +15,12 @@ func NewShortenService(repo domain.IRepository) *ShortenService {
 	return &ShortenService{repo: repo}
 }
 
-func (s *ShortenService) Shorten(url string) (string, error) {
+func (s *ShortenService) Shorten(ctx context.Context, url string) (string, error) {
 	if ret, _ := domain.ValidateURL(url); !ret {
 		return "", domain.ErrInvalidUrl
 	}
 
-	entry, err := s.repo.Create(url)
+	entry, err := s.repo.Create(ctx, url)
 	if err != nil {
 		return "", err
 	}
@@ -27,21 +28,21 @@ func (s *ShortenService) Shorten(url string) (string, error) {
 	return entry.Code, nil
 }
 
-func (s *ShortenService) Resolve(code string) (string, error) {
-	entry, err := s.repo.FindByCode(code)
+func (s *ShortenService) Resolve(ctx context.Context, code string) (string, error) {
+	entry, err := s.repo.FindByCode(ctx, code)
 	if err != nil {
 		return "", err
 	}
 
-	if err := s.repo.IncrementClicks(code); err != nil {
+	if err := s.repo.IncrementClicks(ctx, code); err != nil {
 		log.Printf("failed incrementing clicks for code '%s': %s\n", code, err)
 	}
 
 	return entry.OriginalUrl, nil
 }
 
-func (s *ShortenService) GetStats(code string) (*domain.ShortUrl, error) {
-	entry, err := s.repo.FindByCode(code)
+func (s *ShortenService) GetStats(ctx context.Context, code string) (*domain.ShortUrl, error) {
+	entry, err := s.repo.FindByCode(ctx, code)
 	if err != nil {
 		return nil, err
 	}
@@ -49,6 +50,6 @@ func (s *ShortenService) GetStats(code string) (*domain.ShortUrl, error) {
 	return entry, nil
 }
 
-func (s *ShortenService) Delete(code string) error {
-	return s.repo.Delete(code)
+func (s *ShortenService) Delete(ctx context.Context, code string) error {
+	return s.repo.Delete(ctx, code)
 }

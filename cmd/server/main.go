@@ -19,6 +19,7 @@ import (
 
 const (
 	maxRequestBodyBytes = 4 << 10 // 4 KiB, generous for a single URL payload
+	requestTimeout      = 10 * time.Second
 )
 
 func main() {
@@ -63,7 +64,8 @@ func main() {
 	}
 
 	server := http.Server{
-		Addr: cfg.Port,
+		Addr:    cfg.Port,
+		Handler: http.TimeoutHandler(router, requestTimeout, "request timed out"),
 	}
 
 	serverErr := make(chan error, 1)

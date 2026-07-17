@@ -1,10 +1,14 @@
 package service
 
-import "github.com/BlackestDawn/urlshortener/internal/domain"
+import (
+	"context"
+
+	"github.com/BlackestDawn/urlshortener/internal/domain"
+)
 
 type IShorten interface {
-	Shorten(url string) (string, error)
-	Resolve(code string) (string, error)
-	GetStats(code string) (*domain.ShortUrl, error)
-	Delete(code string) error
+	Shorten(ctx context.Context, url string) (string, error)
+	Resolve(ctx context.Context, code string) (string, error)
+	GetStats(ctx context.Context, code string) (*domain.ShortUrl, error)
+	Delete(ctx context.Context, code string) error
 }

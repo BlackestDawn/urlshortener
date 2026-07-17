@@ -5,6 +5,8 @@
 package domain
 
 import (
+	"context"
+
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -36,8 +38,8 @@ func (_m *MockIRepository) EXPECT() *MockIRepository_Expecter {
 }
 
 // Create provides a mock function for the type MockIRepository
-func (_mock *MockIRepository) Create(url string) (*ShortUrl, error) {
-	ret := _mock.Called(url)
+func (_mock *MockIRepository) Create(ctx context.Context, url string) (*ShortUrl, error) {
+	ret := _mock.Called(ctx, url)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
@@ -45,18 +47,18 @@ func (_mock *MockIRepository) Create(url string) (*ShortUrl, error) {
 
 	var r0 *ShortUrl
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(string) (*ShortUrl, error)); ok {
-		return returnFunc(url)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*ShortUrl, error)); ok {
+		return returnFunc(ctx, url)
 	}
-	if returnFunc, ok := ret.Get(0).(func(string) *ShortUrl); ok {
-		r0 = returnFunc(url)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *ShortUrl); ok {
+		r0 = returnFunc(ctx, url)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*ShortUrl)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(string) error); ok {
-		r1 = returnFunc(url)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = returnFunc(ctx, url)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -69,19 +71,25 @@ type MockIRepository_Create_Call struct {
 }
 
 // Create is a helper method to define mock.On call
+//   - ctx context.Context
 //   - url string
-func (_e *MockIRepository_Expecter) Create(url any) *MockIRepository_Create_Call {
-	return &MockIRepository_Create_Call{Call: _e.mock.On("Create", url)}
+func (_e *MockIRepository_Expecter) Create(ctx any, url any) *MockIRepository_Create_Call {
+	return &MockIRepository_Create_Call{Call: _e.mock.On("Create", ctx, url)}
 }
 
-func (_c *MockIRepository_Create_Call) Run(run func(url string)) *MockIRepository_Create_Call {
+func (_c *MockIRepository_Create_Call) Run(run func(ctx context.Context, url string)) *MockIRepository_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 string
+		var arg0 context.Context
 		if args[0] != nil {
-			arg0 = args[0].(string)
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
 		}
 		run(
 			arg0,
+			arg1,
 		)
 	})
 	return _c
@@ -92,22 +100,22 @@ func (_c *MockIRepository_Create_Call) Return(shortUrl *ShortUrl, err error) *Mo
 	return _c
 }
 
-func (_c *MockIRepository_Create_Call) RunAndReturn(run func(url string) (*ShortUrl, error)) *MockIRepository_Create_Call {
+func (_c *MockIRepository_Create_Call) RunAndReturn(run func(ctx context.Context, url string) (*ShortUrl, error)) *MockIRepository_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Delete provides a mock function for the type MockIRepository
-func (_mock *MockIRepository) Delete(code string) error {
-	ret := _mock.Called(code)
+func (_mock *MockIRepository) Delete(ctx context.Context, code string) error {
+	ret := _mock.Called(ctx, code)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Delete")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(string) error); ok {
-		r0 = returnFunc(code)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = returnFunc(ctx, code)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -120,19 +128,25 @@ type MockIRepository_Delete_Call struct {
 }
 
 // Delete is a helper method to define mock.On call
+//   - ctx context.Context
 //   - code string
-func (_e *MockIRepository_Expecter) Delete(code any) *MockIRepository_Delete_Call {
-	return &MockIRepository_Delete_Call{Call: _e.mock.On("Delete", code)}
+func (_e *MockIRepository_Expecter) Delete(ctx any, code any) *MockIRepository_Delete_Call {
+	return &MockIRepository_Delete_Call{Call: _e.mock.On("Delete", ctx, code)}
 }
 
-func (_c *MockIRepository_Delete_Call) Run(run func(code string)) *MockIRepository_Delete_Call {
+func (_c *MockIRepository_Delete_Call) Run(run func(ctx context.Context, code string)) *MockIRepository_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 string
+		var arg0 context.Context
 		if args[0] != nil {
-			arg0 = args[0].(string)
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
 		}
 		run(
 			arg0,
+			arg1,
 		)
 	})
 	return _c
@@ -143,14 +157,14 @@ func (_c *MockIRepository_Delete_Call) Return(err error) *MockIRepository_Delete
 	return _c
 }
 
-func (_c *MockIRepository_Delete_Call) RunAndReturn(run func(code string) error) *MockIRepository_Delete_Call {
+func (_c *MockIRepository_Delete_Call) RunAndReturn(run func(ctx context.Context, code string) error) *MockIRepository_Delete_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // FindByCode provides a mock function for the type MockIRepository
-func (_mock *MockIRepository) FindByCode(code string) (*ShortUrl, error) {
-	ret := _mock.Called(code)
+func (_mock *MockIRepository) FindByCode(ctx context.Context, code string) (*ShortUrl, error) {
+	ret := _mock.Called(ctx, code)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FindByCode")
@@ -158,18 +172,18 @@ func (_mock *MockIRepository) FindByCode(code string) (*ShortUrl, error) {
 
 	var r0 *ShortUrl
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(string) (*ShortUrl, error)); ok {
-		return returnFunc(code)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*ShortUrl, error)); ok {
+		return returnFunc(ctx, code)
 	}
-	if returnFunc, ok := ret.Get(0).(func(string) *ShortUrl); ok {
-		r0 = returnFunc(code)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *ShortUrl); ok {
+		r0 = returnFunc(ctx, code)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*ShortUrl)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(string) error); ok {
-		r1 = returnFunc(code)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = returnFunc(ctx, code)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -182,19 +196,25 @@ type MockIRepository_FindByCode_Call struct {
 }
 
 // FindByCode is a helper method to define mock.On call
+//   - ctx context.Context
 //   - code string
-func (_e *MockIRepository_Expecter) FindByCode(code any) *MockIRepository_FindByCode_Call {
-	return &MockIRepository_FindByCode_Call{Call: _e.mock.On("FindByCode", code)}
+func (_e *MockIRepository_Expecter) FindByCode(ctx any, code any) *MockIRepository_FindByCode_Call {
+	return &MockIRepository_FindByCode_Call{Call: _e.mock.On("FindByCode", ctx, code)}
 }
 
-func (_c *MockIRepository_FindByCode_Call) Run(run func(code string)) *MockIRepository_FindByCode_Call {
+func (_c *MockIRepository_FindByCode_Call) Run(run func(ctx context.Context, code string)) *MockIRepository_FindByCode_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 string
+		var arg0 context.Context
 		if args[0] != nil {
-			arg0 = args[0].(string)
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
 		}
 		run(
 			arg0,
+			arg1,
 		)
 	})
 	return _c
@@ -205,22 +225,22 @@ func (_c *MockIRepository_FindByCode_Call) Return(shortUrl *ShortUrl, err error)
 	return _c
 }
 
-func (_c *MockIRepository_FindByCode_Call) RunAndReturn(run func(code string) (*ShortUrl, error)) *MockIRepository_FindByCode_Call {
+func (_c *MockIRepository_FindByCode_Call) RunAndReturn(run func(ctx context.Context, code string) (*ShortUrl, error)) *MockIRepository_FindByCode_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // IncrementClicks provides a mock function for the type MockIRepository
-func (_mock *MockIRepository) IncrementClicks(code string) error {
-	ret := _mock.Called(code)
+func (_mock *MockIRepository) IncrementClicks(ctx context.Context, code string) error {
+	ret := _mock.Called(ctx, code)
 
 	if len(ret) == 0 {
 		panic("no return value specified for IncrementClicks")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(string) error); ok {
-		r0 = returnFunc(code)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = returnFunc(ctx, code)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -233,19 +253,25 @@ type MockIRepository_IncrementClicks_Call struct {
 }
 
 // IncrementClicks is a helper method to define mock.On call
+//   - ctx context.Context
 //   - code string
-func (_e *MockIRepository_Expecter) IncrementClicks(code any) *MockIRepository_IncrementClicks_Call {
-	return &MockIRepository_IncrementClicks_Call{Call: _e.mock.On("IncrementClicks", code)}
+func (_e *MockIRepository_Expecter) IncrementClicks(ctx any, code any) *MockIRepository_IncrementClicks_Call {
+	return &MockIRepository_IncrementClicks_Call{Call: _e.mock.On("IncrementClicks", ctx, code)}
 }
 
-func (_c *MockIRepository_IncrementClicks_Call) Run(run func(code string)) *MockIRepository_IncrementClicks_Call {
+func (_c *MockIRepository_IncrementClicks_Call) Run(run func(ctx context.Context, code string)) *MockIRepository_IncrementClicks_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 string
+		var arg0 context.Context
 		if args[0] != nil {
-			arg0 = args[0].(string)
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
 		}
 		run(
 			arg0,
+			arg1,
 		)
 	})
 	return _c
@@ -256,14 +282,14 @@ func (_c *MockIRepository_IncrementClicks_Call) Return(err error) *MockIReposito
 	return _c
 }
 
-func (_c *MockIRepository_IncrementClicks_Call) RunAndReturn(run func(code string) error) *MockIRepository_IncrementClicks_Call {
+func (_c *MockIRepository_IncrementClicks_Call) RunAndReturn(run func(ctx context.Context, code string) error) *MockIRepository_IncrementClicks_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // List provides a mock function for the type MockIRepository
-func (_mock *MockIRepository) List(page int, amount int, search string) ([]*ShortUrl, int, error) {
-	ret := _mock.Called(page, amount, search)
+func (_mock *MockIRepository) List(ctx context.Context, page int, amount int, search string) ([]*ShortUrl, int, error) {
+	ret := _mock.Called(ctx, page, amount, search)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
@@ -272,23 +298,23 @@ func (_mock *MockIRepository) List(page int, amount int, search string) ([]*Shor
 	var r0 []*ShortUrl
 	var r1 int
 	var r2 error
-	if returnFunc, ok := ret.Get(0).(func(int, int, string) ([]*ShortUrl, int, error)); ok {
-		return returnFunc(page, amount, search)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int, int, string) ([]*ShortUrl, int, error)); ok {
+		return returnFunc(ctx, page, amount, search)
 	}
-	if returnFunc, ok := ret.Get(0).(func(int, int, string) []*ShortUrl); ok {
-		r0 = returnFunc(page, amount, search)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int, int, string) []*ShortUrl); ok {
+		r0 = returnFunc(ctx, page, amount, search)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*ShortUrl)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(int, int, string) int); ok {
-		r1 = returnFunc(page, amount, search)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, int, int, string) int); ok {
+		r1 = returnFunc(ctx, page, amount, search)
 	} else {
 		r1 = ret.Get(1).(int)
 	}
-	if returnFunc, ok := ret.Get(2).(func(int, int, string) error); ok {
-		r2 = returnFunc(page, amount, search)
+	if returnFunc, ok := ret.Get(2).(func(context.Context, int, int, string) error); ok {
+		r2 = returnFunc(ctx, page, amount, search)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -301,31 +327,37 @@ type MockIRepository_List_Call struct {
 }
 
 // List is a helper method to define mock.On call
+//   - ctx context.Context
 //   - page int
 //   - amount int
 //   - search string
-func (_e *MockIRepository_Expecter) List(page any, amount any, search any) *MockIRepository_List_Call {
-	return &MockIRepository_List_Call{Call: _e.mock.On("List", page, amount, search)}
+func (_e *MockIRepository_Expecter) List(ctx any, page any, amount any, search any) *MockIRepository_List_Call {
+	return &MockIRepository_List_Call{Call: _e.mock.On("List", ctx, page, amount, search)}
 }
 
-func (_c *MockIRepository_List_Call) Run(run func(page int, amount int, search string)) *MockIRepository_List_Call {
+func (_c *MockIRepository_List_Call) Run(run func(ctx context.Context, page int, amount int, search string)) *MockIRepository_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 int
+		var arg0 context.Context
 		if args[0] != nil {
-			arg0 = args[0].(int)
+			arg0 = args[0].(context.Context)
 		}
 		var arg1 int
 		if args[1] != nil {
 			arg1 = args[1].(int)
 		}
-		var arg2 string
+		var arg2 int
 		if args[2] != nil {
-			arg2 = args[2].(string)
+			arg2 = args[2].(int)
+		}
+		var arg3 string
+		if args[3] != nil {
+			arg3 = args[3].(string)
 		}
 		run(
 			arg0,
 			arg1,
 			arg2,
+			arg3,
 		)
 	})
 	return _c
@@ -336,7 +368,7 @@ func (_c *MockIRepository_List_Call) Return(shortUrls []*ShortUrl, n int, err er
 	return _c
 }
 
-func (_c *MockIRepository_List_Call) RunAndReturn(run func(page int, amount int, search string) ([]*ShortUrl, int, error)) *MockIRepository_List_Call {
+func (_c *MockIRepository_List_Call) RunAndReturn(run func(ctx context.Context, page int, amount int, search string) ([]*ShortUrl, int, error)) *MockIRepository_List_Call {
 	_c.Call.Return(run)
 	return _c
 }

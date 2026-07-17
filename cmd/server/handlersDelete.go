@@ -8,7 +8,7 @@ import (
 
 func (a *ApiController) Remove(c *gin.Context) {
 	code := c.Param("code")
-	err := a.srv.Delete(code)
+	err := a.srv.Delete(c.Request.Context(), code)
 	if err != nil {
 		c.Error(err)
 		return
