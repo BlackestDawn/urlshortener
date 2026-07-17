@@ -30,13 +30,13 @@ func main() {
 	api := NewApiController(srv, cfg.Domain)
 	limiter := ratelimiter.New()
 	limiter.UpdateRateLimit("/healthz", 3, 3)
-	limiter.UpdateConcurrencyLimit("/healthz", 1)
+	limiter.UpdateConcurrencyLimit("/healthz", 3)
 
-	router := gin.Default()
+	router := gin.New()
 
+	router.Use(requestid.New())
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
-	router.Use(requestid.New())
 	router.Use(limiter.Middleware(ratelimiter.WithRateLimit(30, 60), ratelimiter.WithConcurrencyLimit(5)))
 	router.Use(ErrorHandler())
 
