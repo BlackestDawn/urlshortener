@@ -34,6 +34,7 @@ func main() {
 
 	router := gin.Default()
 
+	router.Use(gin.Recovery())
 	router.Use(requestid.New())
 	router.Use(limiter.Middleware(ratelimiter.WithRateLimit(30, 60), ratelimiter.WithConcurrencyLimit(5)))
 	router.Use(ErrorHandler())
