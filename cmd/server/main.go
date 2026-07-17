@@ -17,6 +17,10 @@ import (
 	ratelimiter "github.com/rleungx/gin-ratelimiter"
 )
 
+const (
+	maxRequestBodyBytes = 4 << 10 // 4 KiB, generous for a single URL payload
+)
+
 func main() {
 	cfg := config.NewConfig()
 
@@ -37,6 +41,7 @@ func main() {
 	router.Use(requestid.New())
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
+	router.Use(MaxBodySize(maxRequestBodyBytes))
 	router.Use(limiter.Middleware(ratelimiter.WithRateLimit(30, 60), ratelimiter.WithConcurrencyLimit(5)))
 	router.Use(ErrorHandler())
 
@@ -58,8 +63,7 @@ func main() {
 	}
 
 	server := http.Server{
-		Addr:    cfg.Port,
-		Handler: router,
+		Addr: cfg.Port,
 	}
 
 	serverErr := make(chan error, 1)

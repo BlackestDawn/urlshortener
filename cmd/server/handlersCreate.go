@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/BlackestDawn/urlshortener/api"
@@ -12,6 +13,11 @@ func (a *ApiController) Create(c *gin.Context) {
 	var data api.UrlDto
 	err := c.ShouldBindJSON(&data)
 	if err != nil {
+		var maxBytesErr *http.MaxBytesError
+		if errors.As(err, &maxBytesErr) {
+			c.Error(domain.ErrRequestTooLarge)
+			return
+		}
 		c.Error(domain.ErrInvalidJson)
 		return
 	}
