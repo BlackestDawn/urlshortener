@@ -65,7 +65,7 @@ func main() {
 
 	server := http.Server{
 		Addr:    cfg.Port,
-		Handler: http.TimeoutHandler(router, requestTimeout, "request timed out"),
+		Handler: newTimeoutHandler(router, requestTimeout),
 	}
 
 	serverErr := make(chan error, 1)
