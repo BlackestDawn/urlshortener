@@ -19,3 +19,9 @@ run:
 
 generate:
 	sqlc generate
+
+migrate-up:
+	set -a; . ./.env; set +a; migrate -path db/migrations -database "$$DATABASE_URL" up
+
+migrate-down:
+	set -a; . ./.env; set +a; migrate -path db/migrations -database "$$DATABASE_URL" down $(or $(N),1)
