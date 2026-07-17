@@ -12,6 +12,7 @@ import (
 	"github.com/BlackestDawn/urlshortener/config"
 	"github.com/BlackestDawn/urlshortener/internal/repository"
 	"github.com/BlackestDawn/urlshortener/internal/service"
+	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 )
 
@@ -29,6 +30,7 @@ func main() {
 
 	router := gin.Default()
 
+	router.Use(requestid.New())
 	router.Use(ErrorHandler())
 
 	router.GET("/healthz", api.GetHealth)
