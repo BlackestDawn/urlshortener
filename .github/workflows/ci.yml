@@ -32,3 +32,6 @@ jobs:
 
       - name: Run unittests
         run: make test
+
+      - name: Run integration tests
+        run: make integrationtest
