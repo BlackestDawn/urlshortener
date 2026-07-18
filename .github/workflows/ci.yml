@@ -1,0 +1,130 @@
+name: PR pre-checks
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version: "1.26"
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Install tools
+        run: |
+          go install honnef.co/go/tools/cmd/staticcheck@latest
+          go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.12.0
+          go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+
+      - name: Check code
+        run: make lint
+
+      - name: Check build
+        run: make build
+
+      - name: Run unittests
+        run: make test
+
+      - name: Run integration tests
+        run: make integrationtest
+
+  docker-smoke-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: shorturl
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Run migrations
+        env:
+          PGHOST: localhost
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: shorturl
+        run: |
+          for f in db/migrations/*.up.sql; do
+            psql -v ON_ERROR_STOP=1 -f "$f"
+          done
+
+      - name: Build image
+        run: docker build -t urlshortener:smoke-test .
+
+      - name: Run container
+        run: |
+          docker run -d --name smoke-test \
+            --network host \
+            -e DATABASE_URL="postgres://postgres:postgres@localhost:5432/shorturl?sslmode=disable" \
+            -e LISTEN_PORT=8080 \
+            urlshortener:smoke-test
+
+      - name: Wait for healthy response
+        run: |
+          for i in $(seq 1 15); do
+            if curl -fsS http://localhost:8080/healthz; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Container never became healthy"
+          exit 1
+
+      - name: Container logs
+        if: always()
+        run: docker logs smoke-test
+
+      - name: Cleanup
+        if: always()
+        run: docker rm -f smoke-test
+
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version: "1.26"
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Generate coverage profile
+        run: go test -covermode=atomic -coverprofile=coverage.out ./...
+
+      - name: Download main branch coverage baseline
+        id: download-main-breakdown
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          workflow: coverage-baseline.yml
+          branch: main
+          workflow_conclusion: success
+          name: main.breakdown
+          if_no_artifact_found: warn
+
+      - name: Check coverage
+        uses: vladopajic/go-test-coverage@v2
+        with:
+          config: ./.github/.testcoverage.yml
+          profile: coverage.out
+          diff-base-breakdown-file-name: ${{ steps.download-main-breakdown.outputs.found_artifact == 'true' && 'main.breakdown' || '' }}
