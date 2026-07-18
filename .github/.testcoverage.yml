@@ -1,0 +1,15 @@
+# https://github.com/vladopajic/go-test-coverage
+#
+# Absolute thresholds are disabled for now: current coverage is very uneven
+# across packages (0-59%), so a flat minimum would either lock in today's gaps
+# or immediately block PRs. Once existing packages are backfilled, raise
+# these to enforce a real floor.
+threshold:
+  file: 0
+  package: 0
+  total: 0
+
+# Coverage must not regress relative to main. Raise above 0 later to require
+# each PR to nudge total coverage up.
+diff:
+  threshold: 0
