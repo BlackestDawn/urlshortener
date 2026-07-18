@@ -5,10 +5,18 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/BlackestDawn/urlshortener/config"
 	"github.com/BlackestDawn/urlshortener/internal/domain"
 	_ "github.com/jackc/pgx/v5/stdlib"
+)
+
+const (
+	maxOpenConns    = 25
+	maxIdleConns    = 25
+	connMaxLifetime = 5 * time.Minute
+	connMaxIdleTime = 5 * time.Minute
 )
 
 type PostgresRepository struct {
@@ -22,6 +30,11 @@ func NewPGRepository(cfg *config.Config) (*PostgresRepository, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	db.SetMaxOpenConns(maxOpenConns)
+	db.SetMaxIdleConns(maxIdleConns)
+	db.SetConnMaxLifetime(connMaxLifetime)
+	db.SetConnMaxIdleTime(connMaxIdleTime)
 
 	repo.QBQueries = New(db)
 	cfg.AddCloser(db.Close)
