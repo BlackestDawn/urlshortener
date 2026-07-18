@@ -9,13 +9,13 @@ import (
 
 func (a *ApiController) GetSingle(c *gin.Context) {
 	code := c.Param("code")
-	url, err := a.srv.Resolve(c.Request.Context(), code)
+	entry, err := a.srv.GetStats(c.Request.Context(), code)
 	if err != nil {
 		c.Error(err)
 		return
 	}
 
-	c.JSON(http.StatusOK, api.UrlDto{Url: url})
+	c.JSON(http.StatusOK, api.UrlDto{Url: entry.OriginalUrl})
 }
 
 func (a *ApiController) GetStats(c *gin.Context) {

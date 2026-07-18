@@ -33,10 +33,11 @@ LIMIT $2;
 SELECT COUNT(id)
 FROM short_urls;
 
--- name: IncrementClicks :exec
+-- name: IncrementClicks :one
 UPDATE short_urls
-SET clicks = $2
-WHERE code = $1;
+SET clicks = clicks + 1
+WHERE code = $1
+RETURNING *;
 
 -- name: DeleteByCode :exec
 DELETE FROM short_urls

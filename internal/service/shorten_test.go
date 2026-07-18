@@ -61,11 +61,8 @@ func TestShorten_RepoError_PropagatesError(t *testing.T) {
 func TestResolve_KnownCode_ReturnsURL(t *testing.T) {
 	repo := domain.NewMockIRepository(t)
 	repo.EXPECT().
-		FindByCode(mock.Anything, validCode).
-		Return(&domain.ShortUrl{OriginalUrl: validUrl}, nil)
-	repo.EXPECT().
 		IncrementClicks(mock.Anything, validCode).
-		Return(nil)
+		Return(&domain.ShortUrl{OriginalUrl: validUrl}, nil)
 
 	svc := NewShortenService(repo)
 
@@ -77,7 +74,7 @@ func TestResolve_KnownCode_ReturnsURL(t *testing.T) {
 func TestResolve_UnknownCode_ReturnsErrNotFound(t *testing.T) {
 	repo := domain.NewMockIRepository(t)
 	repo.EXPECT().
-		FindByCode(mock.Anything, "invalid_code").
+		IncrementClicks(mock.Anything, "invalid_code").
 		Return(nil, domain.ErrNotFound)
 
 	svc := NewShortenService(repo)
@@ -88,11 +85,8 @@ func TestResolve_UnknownCode_ReturnsErrNotFound(t *testing.T) {
 func TestResolve_IncrementsClicks(t *testing.T) {
 	repo := domain.NewMockIRepository(t)
 	repo.EXPECT().
-		FindByCode(mock.Anything, validCode).
-		Return(&domain.ShortUrl{OriginalUrl: validUrl}, nil)
-	repo.EXPECT().
 		IncrementClicks(mock.Anything, validCode).
-		Return(nil).
+		Return(&domain.ShortUrl{OriginalUrl: validUrl}, nil).
 		Once()
 
 	svc := NewShortenService(repo)
