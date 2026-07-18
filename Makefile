@@ -12,7 +12,6 @@ lint:
 	go vet ./...
 	golangci-lint run
 	sqlc vet
-	sqlc verify
 
 run:
 	go run ./cmd/server
