@@ -1,0 +1,86 @@
+name: Deploy to production
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Git SHA of the staging image to promote. Leave blank to promote whatever is currently running on staging."
+        required: false
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  REGION: europe-west1
+  REPO: apps
+  APP_NAME: urlshortener
+  SERVICE: urlshortener-prod
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # Requires a GitHub Environment named "production" with a required
+    # reviewer configured (Settings > Environments) so this job pauses for
+    # manual approval regardless of who triggers the workflow.
+    environment: production
+    steps:
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOYER_SA }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Resolve image tag to promote
+        id: resolve
+        run: |
+          TAG="${{ inputs.image_tag }}"
+          if [ -z "$TAG" ]; then
+            TAG=$(gcloud run services describe urlshortener-staging \
+              --region "$REGION" \
+              --format='value(spec.template.spec.containers[0].image)' \
+              | sed 's/.*://')
+            echo "No image_tag given — promoting whatever staging is currently running: $TAG"
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Check out the exact commit being promoted
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ steps.resolve.outputs.tag }}
+
+      - name: Fetch prod DB URL
+        id: secrets
+        uses: google-github-actions/get-secretmanager-secrets@v2
+        with:
+          secrets: |-
+            db_url:${{ secrets.GCP_PROJECT_ID }}/${{ env.APP_NAME }}-prod-database-url
+
+      - name: Run migrations
+        env:
+          PGCONNSTR: ${{ steps.secrets.outputs.db_url }}
+        run: |
+          sudo apt-get update && sudo apt-get install -y postgresql-client
+          for f in db/migrations/*.up.sql; do
+            psql "$PGCONNSTR" -v ON_ERROR_STOP=1 -f "$f"
+          done
+
+      - name: Deploy to Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.SERVICE }}
+          region: ${{ env.REGION }}
+          image: ${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPO }}/${{ env.APP_NAME }}:${{ steps.resolve.outputs.tag }}
+          service_account: ${{ secrets.GCP_RUNTIME_SA }}
+          env_vars: |
+            LISTEN_PORT=8080
+            URLSHORTENER_ENV=prod
+          secrets: |
+            DATABASE_URL=${{ env.APP_NAME }}-prod-database-url:latest

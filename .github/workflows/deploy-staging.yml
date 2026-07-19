@@ -1,0 +1,72 @@
+name: Deploy to staging
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  REGION: europe-west1
+  REPO: apps
+  APP_NAME: urlshortener
+  SERVICE: urlshortener-staging
+  IMAGE: europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/apps/urlshortener:${{ github.sha }}
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOYER_SA }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+
+      - name: Build and push image
+        run: |
+          docker build -t "$IMAGE" .
+          docker push "$IMAGE"
+
+      - name: Fetch staging DB URL
+        id: secrets
+        uses: google-github-actions/get-secretmanager-secrets@v2
+        with:
+          secrets: |-
+            db_url:${{ secrets.GCP_PROJECT_ID }}/${{ env.APP_NAME }}-staging-database-url
+
+      - name: Run migrations
+        env:
+          PGCONNSTR: ${{ steps.secrets.outputs.db_url }}
+        run: |
+          sudo apt-get update && sudo apt-get install -y postgresql-client
+          for f in db/migrations/*.up.sql; do
+            psql "$PGCONNSTR" -v ON_ERROR_STOP=1 -f "$f"
+          done
+
+      - name: Deploy to Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.SERVICE }}
+          region: ${{ env.REGION }}
+          image: ${{ env.IMAGE }}
+          service_account: ${{ secrets.GCP_RUNTIME_SA }}
+          env_vars: |
+            LISTEN_PORT=8080
+            URLSHORTENER_ENV=staging
+          secrets: |
+            DATABASE_URL=${{ env.APP_NAME }}-staging-database-url:latest
