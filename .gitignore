@@ -44,3 +44,11 @@ go.work.sum
 *.vsix
 bin/
 .claude/
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+**/terraform.tfvars
+crash.log

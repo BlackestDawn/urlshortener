@@ -1,0 +1,2 @@
+app_name  = "urlshortener"
+region_id = "aws-eu-central-1"
