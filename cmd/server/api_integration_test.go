@@ -117,8 +117,8 @@ func TestCreate_MalformedJson_ReturnsUnprocessableEntity(t *testing.T) {
 func TestGetSingle_KnownCode_ReturnsUrl(t *testing.T) {
 	router, srv := newTestRouter(t)
 	srv.EXPECT().
-		Resolve(mock.Anything, "abc123").
-		Return("https://example.com", nil)
+		GetStats(mock.Anything, "abc123").
+		Return(&domain.ShortUrl{Code: "abc123", OriginalUrl: "https://example.com"}, nil)
 
 	rec := doRequest(t, router, http.MethodGet, "/api/v1/links/abc123", nil)
 
@@ -132,8 +132,8 @@ func TestGetSingle_KnownCode_ReturnsUrl(t *testing.T) {
 func TestGetSingle_UnknownCode_ReturnsNotFound(t *testing.T) {
 	router, srv := newTestRouter(t)
 	srv.EXPECT().
-		Resolve(mock.Anything, "missing").
-		Return("", domain.ErrNotFound)
+		GetStats(mock.Anything, "missing").
+		Return(nil, domain.ErrNotFound)
 
 	rec := doRequest(t, router, http.MethodGet, "/api/v1/links/missing", nil)
 

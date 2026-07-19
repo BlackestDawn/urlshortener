@@ -5,10 +5,18 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/BlackestDawn/urlshortener/config"
 	"github.com/BlackestDawn/urlshortener/internal/domain"
 	_ "github.com/jackc/pgx/v5/stdlib"
+)
+
+const (
+	maxOpenConns    = 25
+	maxIdleConns    = 25
+	connMaxLifetime = 5 * time.Minute
+	connMaxIdleTime = 5 * time.Minute
 )
 
 type PostgresRepository struct {
@@ -22,6 +30,11 @@ func NewPGRepository(cfg *config.Config) (*PostgresRepository, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	db.SetMaxOpenConns(maxOpenConns)
+	db.SetMaxIdleConns(maxIdleConns)
+	db.SetConnMaxLifetime(connMaxLifetime)
+	db.SetConnMaxIdleTime(connMaxIdleTime)
 
 	repo.QBQueries = New(db)
 	cfg.AddCloser(db.Close)
@@ -98,19 +111,14 @@ func (r *PostgresRepository) List(ctx context.Context, page int, amount int, sea
 	return retVal, int(totalAmount), nil
 }
 
-func (r *PostgresRepository) IncrementClicks(ctx context.Context, code string) error {
-	res, err := r.QBQueries.GetByCode(ctx, code)
+func (r *PostgresRepository) IncrementClicks(ctx context.Context, code string) (*domain.ShortUrl, error) {
+	entry, err := r.QBQueries.IncrementClicks(ctx, code)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return domain.ErrNotFound
+			return nil, domain.ErrNotFound
 		}
-		return err
+		return nil, err
 	}
 
-	err = r.QBQueries.IncrementClicks(ctx, IncrementClicksParams{
-		Code:   code,
-		Clicks: res.Clicks + 1,
-	})
-
-	return err
+	return entryToDomain(entry), nil
 }

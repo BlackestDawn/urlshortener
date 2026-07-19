@@ -80,20 +80,24 @@ func (q *Queries) GetByCode(ctx context.Context, code string) (ShortUrl, error) 
 	return i, err
 }
 
-const incrementClicks = `-- name: IncrementClicks :exec
+const incrementClicks = `-- name: IncrementClicks :one
 UPDATE short_urls
-SET clicks = $2
+SET clicks = clicks + 1
 WHERE code = $1
+RETURNING id, created_at, code, original_url, clicks
 `
 
-type IncrementClicksParams struct {
-	Code   string
-	Clicks int32
-}
-
-func (q *Queries) IncrementClicks(ctx context.Context, arg IncrementClicksParams) error {
-	_, err := q.db.ExecContext(ctx, incrementClicks, arg.Code, arg.Clicks)
-	return err
+func (q *Queries) IncrementClicks(ctx context.Context, code string) (ShortUrl, error) {
+	row := q.db.QueryRowContext(ctx, incrementClicks, code)
+	var i ShortUrl
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.Code,
+		&i.OriginalUrl,
+		&i.Clicks,
+	)
+	return i, err
 }
 
 const list = `-- name: List :many

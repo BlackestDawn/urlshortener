@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"log"
 
 	"github.com/BlackestDawn/urlshortener/internal/domain"
 )
@@ -29,13 +28,9 @@ func (s *ShortenService) Shorten(ctx context.Context, url string) (string, error
 }
 
 func (s *ShortenService) Resolve(ctx context.Context, code string) (string, error) {
-	entry, err := s.repo.FindByCode(ctx, code)
+	entry, err := s.repo.IncrementClicks(ctx, code)
 	if err != nil {
 		return "", err
-	}
-
-	if err := s.repo.IncrementClicks(ctx, code); err != nil {
-		log.Printf("failed incrementing clicks for code '%s': %s\n", code, err)
 	}
 
 	return entry.OriginalUrl, nil

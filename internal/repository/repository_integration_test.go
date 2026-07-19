@@ -54,8 +54,9 @@ func TestRepository_IncrementClicks_CounterIncreases(t *testing.T) {
 
 	created := createTestRecord(t, "https://example.com/clicks")
 
-	err := testRepo.IncrementClicks(t.Context(), created.Code)
+	updated, err := testRepo.IncrementClicks(t.Context(), created.Code)
 	require.NoError(t, err)
+	assert.Equal(t, created.Clicks+1, updated.Clicks)
 
 	found, err := testRepo.FindByCode(t.Context(), created.Code)
 	require.NoError(t, err)
@@ -65,7 +66,7 @@ func TestRepository_IncrementClicks_CounterIncreases(t *testing.T) {
 func TestRepository_IncrementClicks_NonExistentCode(t *testing.T) {
 	resetDB(t)
 
-	err := testRepo.IncrementClicks(t.Context(), "1234567890abcdef")
+	_, err := testRepo.IncrementClicks(t.Context(), "1234567890abcdef")
 	require.ErrorIs(t, err, domain.ErrNotFound)
 }
 

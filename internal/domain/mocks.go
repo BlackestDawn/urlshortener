@@ -231,20 +231,31 @@ func (_c *MockIRepository_FindByCode_Call) RunAndReturn(run func(ctx context.Con
 }
 
 // IncrementClicks provides a mock function for the type MockIRepository
-func (_mock *MockIRepository) IncrementClicks(ctx context.Context, code string) error {
+func (_mock *MockIRepository) IncrementClicks(ctx context.Context, code string) (*ShortUrl, error) {
 	ret := _mock.Called(ctx, code)
 
 	if len(ret) == 0 {
 		panic("no return value specified for IncrementClicks")
 	}
 
-	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) error); ok {
+	var r0 *ShortUrl
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*ShortUrl, error)); ok {
+		return returnFunc(ctx, code)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *ShortUrl); ok {
 		r0 = returnFunc(ctx, code)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*ShortUrl)
+		}
 	}
-	return r0
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = returnFunc(ctx, code)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
 }
 
 // MockIRepository_IncrementClicks_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IncrementClicks'
@@ -277,12 +288,12 @@ func (_c *MockIRepository_IncrementClicks_Call) Run(run func(ctx context.Context
 	return _c
 }
 
-func (_c *MockIRepository_IncrementClicks_Call) Return(err error) *MockIRepository_IncrementClicks_Call {
-	_c.Call.Return(err)
+func (_c *MockIRepository_IncrementClicks_Call) Return(shortUrl *ShortUrl, err error) *MockIRepository_IncrementClicks_Call {
+	_c.Call.Return(shortUrl, err)
 	return _c
 }
 
-func (_c *MockIRepository_IncrementClicks_Call) RunAndReturn(run func(ctx context.Context, code string) error) *MockIRepository_IncrementClicks_Call {
+func (_c *MockIRepository_IncrementClicks_Call) RunAndReturn(run func(ctx context.Context, code string) (*ShortUrl, error)) *MockIRepository_IncrementClicks_Call {
 	_c.Call.Return(run)
 	return _c
 }
