@@ -2,6 +2,7 @@ package config
 
 import (
 	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 
@@ -17,7 +18,10 @@ type Config struct {
 }
 
 func NewConfig() *Config {
-	godotenv.Load(findEnvFile(""))
+	err := godotenv.Load(findEnvFile(""))
+	if err != nil {
+		slog.Info("error loading env file", "error", err.Error())
+	}
 
 	appEnv := os.Getenv("URLSHORTENER_ENV")
 	if appEnv == "" {
@@ -54,8 +58,12 @@ func (c *Config) AddCloser(closer func() error) {
 }
 
 func (c *Config) Cleanup() {
+	logger := slog.Default()
 	for _, closer := range c.closers {
-		closer()
+		err := closer()
+		if err != nil {
+			logger.Warn("Something went wrong during shutdown", "error", err.Error())
+		}
 	}
 }
 
