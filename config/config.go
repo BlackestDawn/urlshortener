@@ -28,7 +28,10 @@ func NewConfig() *Config {
 		appEnv = defaultAppEnv
 	}
 
-	godotenv.Load(findEnvFile(appEnv))
+	err = godotenv.Load(findEnvFile(appEnv))
+	if err != nil {
+		slog.Info("error loading env file", "error", err.Error())
+	}
 
 	dbUrl := os.Getenv("DATABASE_URL")
 	if dbUrl == "" {
