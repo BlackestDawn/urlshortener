@@ -1,6 +1,6 @@
 version: "2"
 issues:
-  new-from-merge-base: main
+  new-from-merge-base: origin/main
   fix: true
 output:
   sort-order:
