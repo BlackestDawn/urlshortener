@@ -38,6 +38,11 @@ jobs:
 
       - uses: google-github-actions/setup-gcloud@v2
 
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version: "1.26"
+
       - name: Resolve image tag to promote
         id: resolve
         run: |
@@ -67,7 +72,7 @@ jobs:
         env:
           DATABASE_URL: ${{ steps.secrets.outputs.db_url }}
         run: |
-          sudo apt-get update && sudo apt-get install -y sql-migrate
+          go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
           touch .env
           make migrate-up
 
