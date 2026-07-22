@@ -65,12 +65,11 @@ jobs:
 
       - name: Run migrations
         env:
-          PGCONNSTR: ${{ steps.secrets.outputs.db_url }}
+          DATABASE_URL: ${{ steps.secrets.outputs.db_url }}
         run: |
-          sudo apt-get update && sudo apt-get install -y postgresql-client
-          for f in db/migrations/*.up.sql; do
-            psql "$PGCONNSTR" -v ON_ERROR_STOP=1 -f "$f"
-          done
+          sudo apt-get update && sudo apt-get install -y sql-migrate
+          touch .env
+          make migrate-up
 
       - name: Deploy to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2
@@ -78,6 +77,7 @@ jobs:
           service: ${{ env.SERVICE }}
           region: ${{ env.REGION }}
           image: ${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPO }}/${{ env.APP_NAME }}:${{ steps.resolve.outputs.tag }}
+          service_account: ${{ secrets.GCP_RUNTIME_SA }}
           env_vars: |
             LISTEN_PORT=8080
             URLSHORTENER_ENV=prod
