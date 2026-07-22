@@ -9,13 +9,13 @@ output "workload_identity_provider" {
 }
 
 output "deployer_service_accounts" {
-  value       = { for k, sa in google_service_account.deployer : k => sa.email }
-  description = "Per-app value for the GCP_DEPLOYER_SA GitHub Actions secret."
+  value       = google_service_account.deployer.email
+  description = "Value for the GCP_DEPLOYER_SA GitHub Actions secret."
 }
 
 output "runtime_service_accounts" {
-  value       = { for k, sa in google_service_account.runtime : k => sa.email }
-  description = "Per-app value for the GCP_RUNTIME_SA GitHub Actions secret."
+  value       = google_service_account.runtime.email
+  description = "Value for the GCP_RUNTIME_SA GitHub Actions secret."
 }
 
 output "secret_ids" {
