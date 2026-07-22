@@ -4,7 +4,7 @@ endef
 
 MIGRATE := $(call find_exe, migrate sql-migrate)
 check_migrate:
-	@if [ -z "$(MIGRATE)"]; then \
+	@if [ -z "$(MIGRATE)" ]; then \
 		echo "Error: migration tool not found" >&2; exit 1; \
 	fi
 
