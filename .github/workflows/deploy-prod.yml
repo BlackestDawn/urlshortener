@@ -30,13 +30,13 @@ jobs:
     environment: production
     steps:
       - id: auth
-        uses: google-github-actions/auth@v2
+        uses: google-github-actions/auth@v3
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_DEPLOYER_SA }}
 
-      - uses: google-github-actions/setup-gcloud@v2
+      - uses: google-github-actions/setup-gcloud@v3
 
       - name: Set up Go
         uses: actions/setup-go@v7
@@ -63,7 +63,7 @@ jobs:
 
       - name: Fetch prod DB URL
         id: secrets
-        uses: google-github-actions/get-secretmanager-secrets@v2
+        uses: google-github-actions/get-secretmanager-secrets@v3
         with:
           secrets: |-
             db_url:${{ secrets.GCP_PROJECT_ID }}/${{ env.APP_NAME }}-prod-database-url
@@ -77,7 +77,7 @@ jobs:
           make migrate-up
 
       - name: Deploy to Cloud Run
-        uses: google-github-actions/deploy-cloudrun@v2
+        uses: google-github-actions/deploy-cloudrun@v3
         with:
           service: ${{ env.SERVICE }}
           region: ${{ env.REGION }}
