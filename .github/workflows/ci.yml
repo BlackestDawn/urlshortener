@@ -116,7 +116,7 @@ jobs:
 
       - name: Download main branch coverage baseline
         id: download-main-breakdown
-        uses: dawidd6/action-download-artifact@v6
+        uses: dawidd6/action-download-artifact@v21
         with:
           workflow: coverage-baseline.yml
           branch: main
