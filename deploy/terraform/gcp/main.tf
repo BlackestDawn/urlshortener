@@ -13,6 +13,7 @@ locals {
     "roles/run.admin",
     "roles/artifactregistry.writer",
     "roles/iam.serviceAccountUser",
+    "roles/secretmanager.secretAccessor",
   ]
 }
 
