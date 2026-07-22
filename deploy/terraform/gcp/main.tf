@@ -13,17 +13,8 @@ locals {
     "roles/run.admin",
     "roles/artifactregistry.writer",
     "roles/iam.serviceAccountUser",
+    "roles/secretmanager.secretAccessor",
   ]
-
-  deployer_role_bindings = {
-    for pair in setproduct(keys(var.apps), local.deployer_roles) :
-    "${pair[0]}-${pair[1]}" => { app = pair[0], role = pair[1] }
-  }
-
-  secrets = {
-    for pair in setproduct(keys(var.apps), local.envs) :
-    "${pair[0]}-${pair[1]}" => { app = pair[0], env = pair[1] }
-  }
 }
 
 resource "google_project_service" "this" {
@@ -73,47 +64,43 @@ resource "google_iam_workload_identity_pool_provider" "github" {
 
 # Used by GitHub Actions to build/push/deploy.
 resource "google_service_account" "deployer" {
-  for_each     = var.apps
-  account_id   = "${each.key}-deployer"
-  display_name = "${each.key} GitHub Actions deployer"
+  account_id   = "${var.github_repo}-deployer"
+  display_name = "${var.github_repo} GitHub Actions deployer"
 }
 
 # Used as the running Cloud Run service's own identity.
 resource "google_service_account" "runtime" {
-  for_each     = var.apps
-  account_id   = "${each.key}-run"
-  display_name = "${each.key} Cloud Run runtime identity"
+  account_id   = "${var.github_repo}-run"
+  display_name = "${var.github_repo} Cloud Run runtime identity"
 }
 
 resource "google_project_iam_member" "deployer" {
-  for_each = local.deployer_role_bindings
+  for_each = toset(local.deployer_roles)
   project  = var.project_id
-  role     = each.value.role
-  member   = "serviceAccount:${google_service_account.deployer[each.value.app].email}"
+  role     = each.value
+  member   = "serviceAccount:${google_service_account.deployer.email}"
 }
 
 resource "google_project_iam_member" "runtime_secret_access" {
-  for_each = var.apps
   project  = var.project_id
   role     = "roles/secretmanager.secretAccessor"
-  member   = "serviceAccount:${google_service_account.runtime[each.key].email}"
+  member   = "serviceAccount:${google_service_account.runtime.email}"
 }
 
 # Let GitHub Actions, but only from the matching repo, impersonate this
 # app's deployer SA — no downloaded JSON keys.
 resource "google_service_account_iam_member" "deployer_wif_binding" {
-  for_each           = var.apps
-  service_account_id = google_service_account.deployer[each.key].name
+  service_account_id = google_service_account.deployer.name
   role               = "roles/iam.workloadIdentityUser"
-  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github_actions.name}/attribute.repository/${var.github_org}/${each.value.github_repo}"
+  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github_actions.name}/attribute.repository/${var.github_org}/${var.github_repo}"
 }
 
 # Secret containers only — the actual connection string is pushed in
 # separately (see deploy/terraform/neon output + gcloud secrets versions
 # add), so it never lands in this stack's state.
 resource "google_secret_manager_secret" "db_url" {
-  for_each  = local.secrets
-  secret_id = "${each.value.app}-${each.value.env}-database-url"
+  for_each  = toset(local.envs)
+  secret_id = "${var.github_repo}-${each.value}-database-url"
 
   replication {
     auto {}

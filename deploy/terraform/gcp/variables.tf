@@ -14,9 +14,8 @@ variable "github_org" {
   description = "GitHub org/username that owns the repos allowed to deploy into this project."
 }
 
-variable "apps" {
-  type = map(object({
-    github_repo = string
-  }))
-  description = "One entry per app deployed into this project. The map key is used as the app name (service account ids, secret names, Artifact Registry image name). Add a new entry here for each future project instead of writing new Terraform."
+variable "github_repo" {
+  type = string
+  default = "urlshortener"
+  description = "Github repository name."
 }
