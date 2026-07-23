@@ -89,6 +89,6 @@ jobs:
           env_vars: |
             LISTEN_PORT=8080
             URLSHORTENER_ENV=prod
-            SHORTEN_DOMAIN=shorten.alexstauch.app
+            SHORTEN_DOMAIN=shortener.alexstauch.app
           secrets: |
             DATABASE_URL=${{ env.APP_NAME }}-prod-database-url:latest
