@@ -73,6 +73,6 @@ jobs:
           env_vars: |
             LISTEN_PORT=8080
             URLSHORTENER_ENV=staging
-            SHORTEN_DOMAIN=shorten-staging.alexstauch.app
+            SHORTEN_DOMAIN=shortener-staging.alexstauch.app
           secrets: |
             DATABASE_URL=${{ env.APP_NAME }}-staging-database-url:latest

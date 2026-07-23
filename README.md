@@ -1,10 +1,13 @@
 # urlshortener
 
-[![CI](https://github.com/BlackestDawn/urlshortener/actions/workflows/ci.yml/badge.svg)](https://github.com/BlackestDawn/urlshortener/actions/workflows/ci.yml)
+[![CI](https://github.com/BlackestDawn/urlshortener/actions/workflows/pr-checks.yml/badge.svg)](https://github.com/BlackestDawn/urlshortener/actions/workflows/pr-checks.yml)
+[![Coverage](https://raw.githubusercontent.com/BlackestDawn/urlshortener/badges/.badges/main/coverage.svg)](https://github.com/BlackestDawn/urlshortener/actions/workflows/coverage-baseline.yml)
 ![Go version](https://img.shields.io/badge/go-1.26-00ADD8?logo=go)
 ![License](https://img.shields.io/badge/license-CC0-lightgrey)
 
 A production-shaped URL shortener written in Go — built less to be another "shorten a link" toy and more as a demonstration of how I structure, test, and ship a real backend service: clean architecture, an actual CI/CD pipeline, and infrastructure-as-code for a deployed environment.
+
+**Live**: [shortener.alexstauch.app](https://shortener.alexstauch.app) ([API](#api) below — it's a JSON API, not a webpage)
 
 ## Why this project
 
