@@ -6,6 +6,8 @@
 
 A production-shaped URL shortener written in Go — built less to be another "shorten a link" toy and more as a demonstration of how I structure, test, and ship a real backend service: clean architecture, an actual CI/CD pipeline, and infrastructure-as-code for a deployed environment.
 
+**Live**: [shortener.alexstauch.app](https://shortener.alexstauch.app) ([API](#api) below — it's a JSON API, not a webpage)
+
 ## Why this project
 
 Most URL-shortener portfolio projects stop at "it works locally." This one is built the way I'd approach a service at work:
