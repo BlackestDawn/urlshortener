@@ -69,9 +69,10 @@ jobs:
           service: ${{ env.SERVICE }}
           region: ${{ env.REGION }}
           image: ${{ env.IMAGE }}
-          flags: --service-account=${{ secrets.GCP_RUNTIME_SA }}
+          flags: --service-account=${{ secrets.GCP_RUNTIME_SA }} --allow-unauthenticated
           env_vars: |
             LISTEN_PORT=8080
             URLSHORTENER_ENV=staging
+            SHORTEN_DOMAIN=shorten-staging.alexstauch.app
           secrets: |
             DATABASE_URL=${{ env.APP_NAME }}-staging-database-url:latest
