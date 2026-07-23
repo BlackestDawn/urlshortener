@@ -1,6 +1,7 @@
 # urlshortener
 
 [![CI](https://github.com/BlackestDawn/urlshortener/actions/workflows/ci.yml/badge.svg)](https://github.com/BlackestDawn/urlshortener/actions/workflows/ci.yml)
+[![Coverage](https://raw.githubusercontent.com/BlackestDawn/urlshortener/badges/.badges/main/coverage.svg)](https://github.com/BlackestDawn/urlshortener/actions/workflows/coverage-baseline.yml)
 ![Go version](https://img.shields.io/badge/go-1.26-00ADD8?logo=go)
 ![License](https://img.shields.io/badge/license-CC0-lightgrey)
 
