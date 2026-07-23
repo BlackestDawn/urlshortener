@@ -82,7 +82,7 @@ jobs:
           service: ${{ env.SERVICE }}
           region: ${{ env.REGION }}
           image: ${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPO }}/${{ env.APP_NAME }}:${{ steps.resolve.outputs.tag }}
-          flags: --service-account=${{ secrets.GCP_RUNTIME_SA }}
+          flags: --service-account=${{ secrets.GCP_RUNTIME_SA }} --allow-unauthenticated
           env_vars: |
             LISTEN_PORT=8080
             URLSHORTENER_ENV=prod
