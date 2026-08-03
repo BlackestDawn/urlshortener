@@ -17,47 +17,38 @@ locals {
   ]
 }
 
+# --- Shared by every app in this project ------------------------------------
+#
+# The WIF pool/provider and the "apps" Artifact Registry repo are owned by a
+# separate bootstrap stack (not tied to any individual app repo) and shared
+# by every app deployed into this GCP project. They're referenced here
+# read-only via data sources rather than recreated, since this stack has its
+# own local Terraform state and re-declaring these as resources here would
+# try to create already-existing, uniquely-named GCP objects and fail with
+# 409s.
+
+data "google_iam_workload_identity_pool" "github_actions" {
+  workload_identity_pool_id = "github-actions"
+}
+
+data "google_iam_workload_identity_pool_provider" "github" {
+  workload_identity_pool_id          = data.google_iam_workload_identity_pool.github_actions.workload_identity_pool_id
+  workload_identity_pool_provider_id = "github"
+}
+
+data "google_artifact_registry_repository" "apps" {
+  location      = var.region
+  repository_id = "apps"
+}
+
+# API enablement is idempotent (enabling an already-enabled API just
+# succeeds), so it's safe for this stack to also declare it rather than
+# assume the bootstrap stack's state will always be the one managing it.
 resource "google_project_service" "this" {
   for_each           = toset(local.apis)
   project            = var.project_id
   service            = each.value
   disable_on_destroy = false
-}
-
-# Shared by every app in this project.
-resource "google_artifact_registry_repository" "apps" {
-  location      = var.region
-  repository_id = "apps"
-  format        = "DOCKER"
-  description   = "Container images for personal apps"
-  depends_on    = [google_project_service.this]
-}
-
-# One-time per GCP project: WIF pool + provider, reused by every app/repo
-# below. Adding a new app does not touch these.
-resource "google_iam_workload_identity_pool" "github_actions" {
-  workload_identity_pool_id = "github-actions"
-  display_name              = "GitHub Actions"
-  depends_on                = [google_project_service.this]
-}
-
-resource "google_iam_workload_identity_pool_provider" "github" {
-  workload_identity_pool_id          = google_iam_workload_identity_pool.github_actions.workload_identity_pool_id
-  workload_identity_pool_provider_id = "github"
-  display_name                       = "GitHub OIDC"
-
-  attribute_mapping = {
-    "google.subject"             = "assertion.sub"
-    "attribute.repository"       = "assertion.repository"
-    "attribute.repository_owner" = "assertion.repository_owner"
-  }
-
-  # Restrict token exchange to repos owned by you, not just any GitHub repo.
-  attribute_condition = "assertion.repository_owner == '${var.github_org}'"
-
-  oidc {
-    issuer_uri = "https://token.actions.githubusercontent.com"
-  }
 }
 
 # --- Per app ---------------------------------------------------------------
@@ -92,7 +83,7 @@ resource "google_project_iam_member" "runtime_secret_access" {
 resource "google_service_account_iam_member" "deployer_wif_binding" {
   service_account_id = google_service_account.deployer.name
   role               = "roles/iam.workloadIdentityUser"
-  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github_actions.name}/attribute.repository/${var.github_org}/${var.github_repo}"
+  member             = "principalSet://iam.googleapis.com/${data.google_iam_workload_identity_pool.github_actions.name}/attribute.repository/${var.github_org}/${var.github_repo}"
 }
 
 # Secret containers only — the actual connection string is pushed in
