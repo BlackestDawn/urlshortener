@@ -1,10 +1,10 @@
 output "artifact_registry_repo" {
-  value       = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.apps.repository_id}"
+  value       = "${var.region}-docker.pkg.dev/${var.project_id}/${data.google_artifact_registry_repository.apps.repository_id}"
   description = "Prefix for image tags, e.g. <this>/urlshortener:<git-sha>"
 }
 
 output "workload_identity_provider" {
-  value       = google_iam_workload_identity_pool_provider.github.name
+  value       = data.google_iam_workload_identity_pool_provider.github.name
   description = "Value for the GCP_WORKLOAD_IDENTITY_PROVIDER GitHub Actions secret."
 }
 

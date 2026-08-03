@@ -1,6 +1,6 @@
 variable "project_id" {
   type        = string
-  description = "GCP project shared by all your personal apps."
+  description = "GCP project this app deploys into."
 }
 
 variable "region" {

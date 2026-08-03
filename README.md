@@ -97,10 +97,7 @@ merge to main ──▶ build & push image ──▶ migrate staging DB ──�
                                                     promote the *same* image ──▶ migrate prod DB ──▶ deploy Cloud Run prod
 ```
 
-- **Compute**: Google Cloud Run (scale-to-zero, pay-per-request).
-- **Database**: [Neon](https://neon.tech) serverless Postgres — prod and a copy-on-write staging branch.
-- **Auth**: GitHub Actions authenticates to GCP via Workload Identity Federation — no long-lived service account keys.
-- **Provisioning**: everything above is Terraform (`deploy/terraform/gcp`, `deploy/terraform/neon`), not manual console setup.
+Google Cloud Run + Neon serverless Postgres, provisioned via Terraform — not clicked together by hand. Full setup instructions: **[deploy/README.md](./deploy/README.md)**.
 
 ## Running locally
 
