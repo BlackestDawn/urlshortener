@@ -17,15 +17,13 @@ locals {
   ]
 }
 
-# --- Shared by every app in this project ------------------------------------
+# --- Owned by the shared bootstrap stack ------------------------------------
 #
-# The WIF pool/provider and the "apps" Artifact Registry repo are owned by a
-# separate bootstrap stack (not tied to any individual app repo) and shared
-# by every app deployed into this GCP project. They're referenced here
-# read-only via data sources rather than recreated, since this stack has its
-# own local Terraform state and re-declaring these as resources here would
-# try to create already-existing, uniquely-named GCP objects and fail with
-# 409s.
+# The WIF pool/provider and the "apps" Artifact Registry repo are managed in
+# a separate Terraform stack (various-terraform/gcp-bootstrap), not here.
+# They're referenced read-only via data sources rather than declared as
+# resources, since re-declaring them here would try to create already-
+# existing, uniquely-named GCP objects and fail with 409s.
 
 data "google_iam_workload_identity_pool" "github_actions" {
   workload_identity_pool_id = "github-actions"
@@ -51,7 +49,7 @@ resource "google_project_service" "this" {
   disable_on_destroy = false
 }
 
-# --- Per app ---------------------------------------------------------------
+# --- This app's own resources ------------------------------------------------
 
 # Used by GitHub Actions to build/push/deploy.
 resource "google_service_account" "deployer" {
@@ -78,8 +76,8 @@ resource "google_project_iam_member" "runtime_secret_access" {
   member   = "serviceAccount:${google_service_account.runtime.email}"
 }
 
-# Let GitHub Actions, but only from the matching repo, impersonate this
-# app's deployer SA — no downloaded JSON keys.
+# Let GitHub Actions, but only from this repo, impersonate the deployer SA —
+# no downloaded JSON keys.
 resource "google_service_account_iam_member" "deployer_wif_binding" {
   service_account_id = google_service_account.deployer.name
   role               = "roles/iam.workloadIdentityUser"
